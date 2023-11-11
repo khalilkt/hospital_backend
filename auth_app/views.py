@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework import serializers
-from entity.models import Hospital
+from entity.models import Hospital, HospitalSerializer
 # Create your views here.
 
 
@@ -19,10 +19,12 @@ class LoginView(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         hospitals = []
         if not  user.is_superuser :
+
             if Hospital.objects.filter(assignedUser = user).exists():
-                hospitals = [user.hospital.id]
+                hospitals = [HospitalSerializer(Hospital.objects.get(assignedUser = user)).data]
         else:
-            hospitals = Hospital.objects.all().values_list('id', flat=True)
+            hospitals = HospitalSerializer(Hospital.objects.all(), many=True).data
+    
         return Response({
             'token': token.key,
             'user_id': user.pk,
