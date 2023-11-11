@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'entity',
+    "auth_app",
     'transacations',
     "corsheaders",
+    'rest_framework.authtoken'
 
 ]
 
@@ -74,7 +76,10 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+   
     'DEFAULT_PAGINATION_CLASS': 'maur_hopitaux.pagination.MPagePagination',
     'PAGE_SIZE': 10
 }

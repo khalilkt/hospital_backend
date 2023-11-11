@@ -15,6 +15,14 @@ class Medicament(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class MedicamentSerializer(serializers.ModelSerializer):
+    # the hospital id field is passed in the context
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.context['request'].method == 'POST' and "hospital_id" in self.context:
+            self.initial_data["hospital"] = self.context["hospital_id"]
+
+
 
     def get_fields(self):
         # if read category should be slug related field 
@@ -25,6 +33,7 @@ class MedicamentSerializer(serializers.ModelSerializer):
         else:
             fields['category'] = serializers.CharField()
         return fields
+    
     
     class Meta:
         model = Medicament
