@@ -16,8 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, MedicamentCategoriesView, OperationCategoriesView, HospitalOperationsDetailView, HospitalOperationsView
-from auth_app.views import LoginView , RegisterView
+from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, MedicamentCategoriesView, OperationCategoriesView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, AnalyseCategoriesView 
+from auth_app.views import LoginTokenView, LoginView , RegisterView
 
 router = DefaultRouter()
 
@@ -33,11 +33,16 @@ urlpatterns = [
 
     path('hospital/<int:hospital_id>/medicament_categories', MedicamentCategoriesView.as_view(), name='medicament_categories'),
     path('hospital/<int:hospital_id>/operation_categories', OperationCategoriesView.as_view(), name='operation_categories'),
+    path('hospital/<int:hospital_id>/analyse_categories', AnalyseCategoriesView.as_view(), name='analyse_categories'),
 
     path('hospital/<int:hospital_id>/operations', HospitalOperationsView.as_view(), name='hospital_operations'),
     path('hospital/<int:hospital_id>/operations/<int:pk>', HospitalOperationsDetailView.as_view(), name='hospital_operations_detail'),
 
+    path('hospital/<int:hospital_id>/analyses', HospitalAnalysesView.as_view(), name='hospital_analyses'),
+    path('hospital/<int:hospital_id>/analyses/<int:pk>', HospitalAnalysesDetailView.as_view(), name='hospital_analyses_detail'),
+
     path('login/', LoginView.as_view(), name='login'), 
+    path('login_token/', LoginTokenView.as_view(), name='login_token'),
     path('register/', RegisterView.as_view(), name='register'),
 
 

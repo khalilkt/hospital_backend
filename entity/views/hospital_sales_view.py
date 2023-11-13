@@ -7,11 +7,12 @@ from rest_framework.response import Response
 
 class HospitalSalesView(ListCreateAPIView):
     serializer_class = MedicamentSaleSerializer
+
     filter_backends = [filters.OrderingFilter]
     ordering = ['id']
     def get_queryset(self):
         return MedicamentSale.objects.filter(hospital=self.kwargs['hospital_id'])
- 
+
 
 class HospitalSalesDetailView(RetrieveUpdateAPIView):
     serializer_class = MedicamentSaleSerializer

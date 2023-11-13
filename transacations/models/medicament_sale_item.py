@@ -11,7 +11,7 @@ class MedicamentSaleItem(models.Model):
 class MedicamentSaleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicamentSaleItem
-        fields = "__all__"
+        fields = [ 'medicament', 'quantity', 'sale_price']
     
     def validate(self, attrs):
         if attrs['quantity'] > attrs['medicament'].quantity:
