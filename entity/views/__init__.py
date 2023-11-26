@@ -6,3 +6,5 @@ from .medicament_category_view import MedicamentCategoriesView
 from .operation_category_view import OperationCategoriesView
 from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetailView
 from .analyses_category_view import AnalyseCategoriesView
+
+from .hospital_stats_view import HospitalStatsView

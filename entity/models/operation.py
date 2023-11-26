@@ -7,6 +7,7 @@ class Operations(models.Model):
     price = models.FloatField()
     code = models.CharField(max_length=255, unique=True)
     duration = models.PositiveIntegerField(max_length=255)
+    doctor = models.CharField(max_length=255, default="Doctor 1", blank=False, null=False)
     description = models.TextField(default="")
     category = models.ForeignKey('entity.OperationCategory', on_delete=models.CASCADE, related_name='operations')
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='operations')
@@ -14,7 +15,6 @@ class Operations(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class OperationsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Operations
         fields = "__all__"

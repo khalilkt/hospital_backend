@@ -18,6 +18,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, MedicamentCategoriesView, OperationCategoriesView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, AnalyseCategoriesView 
 from auth_app.views import LoginTokenView, LoginView , RegisterView
+from entity.views.hospital_stats_view import HospitalStatsView
 
 router = DefaultRouter()
 
@@ -41,6 +42,8 @@ urlpatterns = [
     path('hospital/<int:hospital_id>/analyses', HospitalAnalysesView.as_view(), name='hospital_analyses'),
     path('hospital/<int:hospital_id>/analyses/<int:pk>', HospitalAnalysesDetailView.as_view(), name='hospital_analyses_detail'),
 
+    path('hospital/<int:hospital_id>/stats', HospitalStatsView.as_view(), name='hospital_stats'),
+    
     path('login/', LoginView.as_view(), name='login'), 
     path('login_token/', LoginTokenView.as_view(), name='login_token'),
     path('register/', RegisterView.as_view(), name='register'),
