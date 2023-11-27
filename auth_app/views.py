@@ -68,4 +68,4 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AllowAny  )
+    permission_classes = (AllowAny , )
