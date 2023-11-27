@@ -3,9 +3,9 @@ from rest_framework import serializers
 from entity.models.operation_category import OperationCategory
 
 class Operations(models.Model): 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, )
     price = models.FloatField()
-    code = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=255, )
     duration = models.PositiveIntegerField(max_length=255)
     doctor = models.CharField(max_length=255, default="Doctor 1", blank=False, null=False)
     description = models.TextField(default="")

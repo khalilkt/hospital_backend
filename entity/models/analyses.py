@@ -6,9 +6,9 @@ from entity.models.analyse_categories import AnalyseCategory
 
 
 class Analyses(models.Model): 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, )
     price = models.FloatField()
-    code = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=255, )
     description = models.TextField(default="")
     category = models.ForeignKey('entity.AnalyseCategory', on_delete=models.CASCADE, related_name='analyses')
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='analyses')
