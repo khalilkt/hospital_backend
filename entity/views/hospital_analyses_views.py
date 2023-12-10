@@ -14,7 +14,7 @@ class HospitalAnalysesView(ListCreateAPIView):
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
     ordering = ['id']
-    search_fields = ['name', 'category__name']
+    search_fields = ['name', 'category__name', "code", "price"]
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
         return Analyses.objects.filter(hospital = hospital_id)

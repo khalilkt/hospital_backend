@@ -16,9 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, MedicamentCategoriesView, OperationCategoriesView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, AnalyseCategoriesView 
+from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, MedicamentCategoriesView, OperationCategoriesView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, AnalyseCategoriesView, HospitalInventoryBulkAddView
 from auth_app.views import LoginTokenView, LoginView , RegisterView
-from entity.views.hospital_stats_view import HospitalStatsView
+from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView
 
 router = DefaultRouter()
 
@@ -26,7 +26,9 @@ router.register('hospital', HospitalViewSet, basename='hospital')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('stats/', AdminHospitalStatsView.as_view(), name='admin_stats'),
     path('hospital/<int:hospital_id>/inventory', HospitalInventoryView.as_view(), name='hospital_inventory'),
+    path('hospital/<int:hospital_id>/inventory/bulk', HospitalInventoryBulkAddView.as_view(), name='hospital_inventory_bulk_add'),
     path('hospital/<int:hospital_id>/inventory/<int:pk>', HospitalInventoryDetailView.as_view(), name='hospital_inventory_detail'),
 
     path('hospital/<int:hospital_id>/sales', HospitalSalesView.as_view(), name='hospital_sales'),
@@ -43,7 +45,7 @@ urlpatterns = [
     path('hospital/<int:hospital_id>/analyses/<int:pk>', HospitalAnalysesDetailView.as_view(), name='hospital_analyses_detail'),
 
     path('hospital/<int:hospital_id>/stats', HospitalStatsView.as_view(), name='hospital_stats'),
-    
+
     path('login/', LoginView.as_view(), name='login'), 
     path('login_token/', LoginTokenView.as_view(), name='login_token'),
     path('register/', RegisterView.as_view(), name='register'),

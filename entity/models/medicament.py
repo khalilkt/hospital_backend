@@ -16,13 +16,12 @@ class Medicament(models.Model):
 
 class MedicamentSerializer(serializers.ModelSerializer):
     # the hospital id field is passed in the context
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.context['request'].method == 'POST' and "hospital_id" in self.context:
+        # check if context in self.context keys
+
+        if  self.context['request'].method == 'POST' and "hospital_id" in self.context:
             self.initial_data["hospital"] = self.context["hospital_id"]
-
-
 
     def get_fields(self):
         # if read category should be slug related field 
@@ -46,7 +45,6 @@ class MedicamentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Category name must be at least 3 characters")
         
         category = MedicamentCategory.objects.get_or_create(name=category, hospital=validated_data['hospital'])[0]
-    
         validated_data['category'] = category
         return super().create(validated_data)
     
