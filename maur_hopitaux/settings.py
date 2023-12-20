@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 
+AUTH_USER_MODEL = 'auth_app.User'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,7 +43,6 @@ INSTALLED_APPS = [
     'transacations',
     "corsheaders",
     'rest_framework.authtoken'
-
 ]
 
 MIDDLEWARE = [

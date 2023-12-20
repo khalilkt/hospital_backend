@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework import serializers
+from auth_app.models import UserSerializer
 from entity.models import Hospital, HospitalSerializer
 # Create your views here.
 
@@ -19,17 +20,15 @@ class LoginTokenView(ObtainAuthToken):
             return Response({"error" : "Invalid token"}, status=400)
         user : User = token.user
         hospitals = []
-        if not  user.is_superuser :
-
-            if Hospital.objects.filter(assignedUser = user).exists():
-                hospitals = [HospitalSerializer(Hospital.objects.get(assignedUser = user)).data]
+        if not user.is_admin :
+            hospitals.append(HospitalSerializer(user.assigned_hospital).data)
         else:
             hospitals = HospitalSerializer(Hospital.objects.all(), many=True).data
 
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            "is_admin" : user.is_superuser, 
+            "is_admin" : user.is_admin, 
             "hospitals" : hospitals
         })
 
@@ -40,32 +39,20 @@ class LoginView(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
+        
         hospitals = []
-        if not  user.is_superuser :
-
-            if Hospital.objects.filter(assignedUser = user).exists():
-                hospitals = [HospitalSerializer(Hospital.objects.get(assignedUser = user)).data]
+        if not user.is_admin :
+            hospitals.append( HospitalSerializer(user.assigned_hospital).data)
         else:
             hospitals = HospitalSerializer(Hospital.objects.all(), many=True).data
-    
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            "is_admin" : user.is_superuser, 
+            "is_admin" : user.is_admin, 
             "hospitals" : hospitals
         })
     
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'email', 'is_staff', 'is_superuser', 'is_active')
-        extra_kwargs = {'password': {'write_only': True}}
-    
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
-
 class RegisterView(CreateAPIView):
-    queryset = User.objects.all()
+    # queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AllowAny , )
+    permission_classes = (AllowAny ,)

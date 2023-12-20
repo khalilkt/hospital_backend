@@ -5,3 +5,4 @@ from .operation import Operations, OperationsSerializer
 from .operation_category import OperationCategory, OperationCategorySerializer
 from .analyse_categories import AnalyseCategory, AnalyseCategorySerializer
 from .analyses import Analyses, AnalysesSerializer
+from .hospital_tickets import Ticket, TicketSerializer

@@ -9,11 +9,11 @@ from entity.models.medicament import Medicament
 
 from entity.models.operation import Operations
 from transacations.models.medicament_sale import MedicamentSale
+from django.db.models import Sum, Count, F
 
 class HospitalStatsView(APIView):
     def get(self, request, hospital_id):
         current_date  = datetime.datetime.now().date()
-
         ret  = Hospital.objects.get(id=hospital_id)
         operations_len = ret.operations.all().count()
         analyses_len = ret.analyses.all().count()
@@ -21,6 +21,13 @@ class HospitalStatsView(APIView):
         total_sales_len = ret.medicamentsale_set.all().count()
         month_sales_len = ret.medicamentsale_set.filter(created_at__month = current_date.month).filter(created_at__year = current_date.year).count()
         today_sales_len = ret.medicamentsale_set.filter(created_at = current_date).count()
+
+        today_revenue = ret.operations.actions.filter(created_at = current_date).aggregate(Sum('price'))['price__sum']
+        today_revenue += ret.analyses.actions.filter(created_at = current_date).aggregate(Sum('price'))['price__sum']
+        today_revenue += ret.medicamentsale_set.filter(created_at = current_date).aggregate(Sum('total_price'))['total_price__sum']
+        # duraton filed could be null if null then 1 
+        
+        today_revenue = ret.ticket_set.actions.filter(created_at = current_date).aggregate(Sum(F('price') * F("duration")))['price__sum']
 
         week_sales = {
 

@@ -8,3 +8,5 @@ from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetai
 from .analyses_category_view import AnalyseCategoriesView
 
 from .hospital_stats_view import HospitalStatsView
+from .hospital_tickets_view import HospitalTicketView, HospitalTicketsDetailView
+from .hospital_payments_view import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet

@@ -1,0 +1,3 @@
+from .hospital_ticket_action_view import HospitalTicketsActionsView, HospitalTicketActionsDetailView
+from .hospital_analyses_action_view import HospitalAnalysesActionsView, HospitalAnalysesActionsDetailView
+from .hospital_operation_action_view import HospitalOperationActionsView, HospitalOperationActionsDetailView

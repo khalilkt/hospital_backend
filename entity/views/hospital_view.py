@@ -8,9 +8,7 @@ from rest_framework import status
 
 from django.contrib.auth.models import User
 
-from entity.models.hospital import IsHospitalAssignedUser
-
-
+from entity.models.hospital import HopsitalPermission
 
 class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
@@ -18,14 +16,17 @@ class HospitalViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'adresse']
     ordering = ['id']
     queryset  = Hospital.objects.all()
+    permission_classes = [IsAuthenticated,HopsitalPermission]
     
-    def get_permissions(self):
-        print("get_permissions")
-        if self.action == 'list':
-            permission_classes = [IsAdminUser]
-        else:
-            permission_classes =  [IsAuthenticated, IsHospitalAssignedUser]
-        return [permission() for permission in permission_classes]  
+    # def get_permissions(self):
+    #     print("get_permissions")
+    #     print(self.request.user.is_staff())
+    #     if self.action == 'list':
+    #         print("list")
+    #         permission_classes = [IsAdminUser]
+    #     else:
+    #         permission_classes =  [IsAuthenticated, IsHospitalAssignedUser]
+    #     return [permission for permission in permission_classes]  
             
         
     def destroy(self, request, *args, **kwargs):

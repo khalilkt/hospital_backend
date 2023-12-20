@@ -6,7 +6,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.permissions import  IsAuthenticated, IsAdminUser
-from entity.models.hospital import IsHospitalAssignedUser , IsHospitalDetailsAssignedUser
+from entity.models.hospital import IsHospitalDetailsAssignedUser
 
 class HospitalOperationsView(ListCreateAPIView):
     serializer_class = OperationsSerializer
@@ -30,4 +30,3 @@ class HospitalOperationsDetailView(RetrieveUpdateDestroyAPIView):
             return get_object_or_404(Operations, hospital = hospital_id, id = id)  
         except Operations.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)
-    

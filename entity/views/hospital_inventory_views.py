@@ -6,7 +6,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.permissions import  IsAuthenticated, IsAdminUser
-from entity.models.hospital import IsHospitalAssignedUser , IsHospitalDetailsAssignedUser
+from entity.models.hospital import IsHospitalDetailsAssignedUser
 
 class HospitalInventoryView(ListCreateAPIView):
     serializer_class = MedicamentSerializer
