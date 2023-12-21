@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, MedicamentCategoriesView, OperationCategoriesView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, AnalyseCategoriesView, HospitalInventoryBulkAddView, HospitalTicketView, HospitalTicketsDetailView
+from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, HospitalInventoryBulkAddView, HospitalTicketView, HospitalTicketsDetailView
 from entity.views import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet
 from transacations.views import HospitalTicketsActionsView, HospitalTicketActionsDetailView, HospitalAnalysesActionsView, HospitalAnalysesActionsDetailView, HospitalOperationActionsView, HospitalOperationActionsDetailView
 from auth_app.views import LoginTokenView, LoginView , RegisterView
 from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView
+from transacations.views.insurances_view import InsuranceViews
 
 router = DefaultRouter()
 
@@ -36,10 +37,6 @@ urlpatterns = [
 
     path('hospital/<int:hospital_id>/sales', HospitalSalesView.as_view(), name='hospital_sales'),
     path('hospital/<int:hospital_id>/sales/<int:pk>', HospitalSalesDetailView.as_view(), name='hospital_sales_detail'),
-
-    path('hospital/<int:hospital_id>/medicament_categories', MedicamentCategoriesView.as_view(), name='medicament_categories'),
-    path('hospital/<int:hospital_id>/operation_categories', OperationCategoriesView.as_view(), name='operation_categories'),
-    path('hospital/<int:hospital_id>/analyse_categories', AnalyseCategoriesView.as_view(), name='analyse_categories'),
 
     path('hospital/<int:hospital_id>/operations', HospitalOperationsView.as_view(), name='hospital_operations'),
     path('hospital/<int:hospital_id>/operations/<int:pk>', HospitalOperationsDetailView.as_view(), name='hospital_operations_detail'),
@@ -68,6 +65,7 @@ urlpatterns = [
     path('login_token/', LoginTokenView.as_view(), name='login_token'),
     path('register/', RegisterView.as_view(), name='register'),
 
+    path("hospital/<int:hospital_id>/insurances", InsuranceViews.as_view(), name="hospital_insurances"),
 
 ]
 

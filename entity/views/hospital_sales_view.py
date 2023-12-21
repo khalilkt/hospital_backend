@@ -10,7 +10,7 @@ class HospitalSalesView(ListCreateAPIView):
 
     filter_backends = [filters.OrderingFilter]
     ordering = ['id']
-    search_fields = ['medicament__name', 'medicament__category__name', 'medicament__codebarres', "date", "price"]
+    search_fields = ['medicament__name', 'medicament__codebarres', "date", "price"]
     def get_queryset(self):
         return MedicamentSale.objects.filter(hospital=self.kwargs['hospital_id'])
 

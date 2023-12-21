@@ -10,20 +10,13 @@ from transacations.models.payment import Payment, PaymentSerializer
 
 class Hospital(models.Model):
     name = models.CharField(max_length=255)
-    adresse = models.CharField(max_length=255)
-    phone = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
     has_pharmacy = models.BooleanField(default=False)
     is_hospital = models.BooleanField(default=False) # if yes then we will only have tickets
-
-    # have pharmacy 
-    # have operations and analyses
-    # link to tickets 
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
 
 class HospitalSerializer(serializers.ModelSerializer):
-    staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='staff_members')
+    # staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='staff_members')
     tickets = TicketSerializer(many=True, read_only=True)
     payments = serializers.SerializerMethodField()
 
@@ -35,15 +28,6 @@ class HospitalSerializer(serializers.ModelSerializer):
         model = Hospital
         fields = "__all__"
 
-
-# class IsHospitalAssignedUser(BasePermission):   
-#     def has_object_permission(self, request, view, obj  ):
-#         user : User  = request.user
-#         if not user :
-#             print("user is none")
-#             return False  
-#         return user.is_staff or user.assigned_hospital == obj
-    
 class HopsitalPermission(BasePermission):
     def has_permission(self, request, view):
 

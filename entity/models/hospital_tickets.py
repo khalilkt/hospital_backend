@@ -8,7 +8,7 @@ class Ticket(models.Model):
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='tickets')
     created_at = models.DateTimeField(auto_now_add=True)
     # 1 = 30min, 2 = hours, 3 = days
-    duration_type = models.SmallIntegerField(max_length=255, null=True, blank=True,)
+    duration_type = models.SmallIntegerField(max_length=255, null=True, blank=True, )
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:

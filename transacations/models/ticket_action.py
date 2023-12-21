@@ -11,6 +11,7 @@ class TicketAction(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ticket_actions', on_delete=models.SET_NULL, null=True, blank=True)
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
     patient = models.CharField(max_length=255)
+    price = models.PositiveIntegerField()
 
 class TicketActionSerializer(serializers.ModelSerializer):
     

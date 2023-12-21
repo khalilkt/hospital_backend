@@ -2,10 +2,7 @@ from .hospital_view import HospitalViewSet
 from .hospital_inventory_views import HospitalInventoryView, HospitalInventoryDetailView, HospitalInventoryBulkAddView
 from .hospital_sales_view import HospitalSalesView, HospitalSalesDetailView
 from .hospital_operations_view import HospitalOperationsDetailView, HospitalOperationsView
-from .medicament_category_view import MedicamentCategoriesView
-from .operation_category_view import OperationCategoriesView
 from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetailView
-from .analyses_category_view import AnalyseCategoriesView
 
 from .hospital_stats_view import HospitalStatsView
 from .hospital_tickets_view import HospitalTicketView, HospitalTicketsDetailView
