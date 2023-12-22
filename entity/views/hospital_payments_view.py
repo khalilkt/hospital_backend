@@ -17,7 +17,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     ordering = ['id']
-    search_fields = ['name', "amount"]
+    search_fields = ['name']
     
 
 
@@ -27,7 +27,7 @@ class HospitalPaymentsView(ListCreateAPIView):
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
     ordering = ['id']
-    search_fields = ['name', "amount"]
+    search_fields = ['name']
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']

@@ -16,7 +16,7 @@ class HospitalAnalysesActionsView(ListCreateAPIView):
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
     ordering = ['id']
-    search_fields = []
+    search_fields = ["analyse__name"]
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']

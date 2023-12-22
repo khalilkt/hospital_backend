@@ -29,5 +29,5 @@ class HospitalViewSet(viewsets.ModelViewSet):
     #     return [permission for permission in permission_classes]  
             
         
-    def destroy(self, request, *args, **kwargs):
-        raise METHOD_NOT_ALLOWED('DELETE')
+    # def destroy(self, request, *args, **kwargs):
+    #     raise METHOD_NOT_ALLOWED('DELETE')
