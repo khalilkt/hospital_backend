@@ -15,8 +15,10 @@ class HospitalOperationActionsView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
-    ordering = ['id']
-    search_fields = ["operation__name"]
+
+
+    ordering = ['-created_at']
+    search_fields = ["operation__name", "patient", "insurance_number",]
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']

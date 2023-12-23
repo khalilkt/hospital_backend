@@ -19,6 +19,7 @@ class HospitalSerializer(serializers.ModelSerializer):
     # staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='staff_members')
     tickets = TicketSerializer(many=True, read_only=True)
     payments = serializers.SerializerMethodField()
+    staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name', source='staff_members')
 
     def get_payments(self, obj):
         ret = Payment.objects.filter(hospital=obj).order_by('-created_at')[:3]

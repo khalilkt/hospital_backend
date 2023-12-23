@@ -22,11 +22,14 @@ from transacations.views import HospitalTicketsActionsView, HospitalTicketAction
 from auth_app.views import LoginTokenView, LoginView , RegisterView
 from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView
 from transacations.views.insurances_view import InsuranceViews
+from auth_app.views import UsersViewSet
 
 router = DefaultRouter()
 
 router.register('hospital', HospitalViewSet, basename='hospital')
 router.register('payments', PaymentViewSet, basename='payments')
+router.register('users', UsersViewSet, basename='users')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

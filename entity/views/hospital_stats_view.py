@@ -9,12 +9,11 @@ from entity.models import Analyses,Medicament, Operations, Ticket
 
 from transacations.models import AnalyseAction, MedicamentSale, OperationAction, TicketAction
 from django.db.models import Value, CharField, IntegerField
-
-
 from rest_framework.response import Response
 from transacations.models.medicament_sale import MedicamentSale
-from django.db.models import Sum, Count, F, Q
+from django.db.models import Sum, Count, F, Q, Value, CharField, IntegerField
 from rest_framework import serializers
+from django.db.models.functions import Concat, Coalesce
 
 class StatsSerializer(serializers.Serializer):
     today_operations_count = serializers.IntegerField() 
@@ -31,19 +30,22 @@ def get_stats_queryset(action, hospital_id = None,  year = None, month = None, d
     ret  = None
     if action== "operation" : 
         ret = OperationAction.objects
+        ret = ret.annotate(revenue = F("price"))
         if hospital_id: 
             ret = ret.filter(operation__hospital = hospital_id)
     elif action == "analyse":
         ret = AnalyseAction.objects
+        ret  = ret.annotate(revenue = F("price"))
         if hospital_id:
             ret = ret.filter(analyse__hospital = hospital_id)
     elif action == "medicament":
         ret = MedicamentSale.objects
         if hospital_id:
             ret = ret.filter(hospital = hospital_id)
-        ret = ret.annotate(price = Sum(F("medicament_sale_items__sale_price") * F("medicament_sale_items__quantity")))
+        ret = ret.annotate(revenue = Sum(F("medicament_sale_items__sale_price") * F("medicament_sale_items__quantity")))
     elif action == "ticket":
         ret = TicketAction.objects
+        ret = ret.annotate(revenue = F("price") * Coalesce(F("duration"), Value(1)))
         if hospital_id:
             ret = ret.filter(ticket__hospital = hospital_id)
     else:
@@ -56,7 +58,7 @@ def get_stats_queryset(action, hospital_id = None,  year = None, month = None, d
     if year:
         ret = ret.filter(created_at__year = str(year))
       
-    ret = ret.values("price", "created_at").order_by("-created_at")
+    ret = ret.values("revenue", "created_at").order_by("-created_at")
     return ret
 
 def get_range_revenue( hospital_id, year , month):
@@ -65,10 +67,10 @@ def get_range_revenue( hospital_id, year , month):
     medicaments = get_stats_queryset("medicament", hospital_id, year, month,)
     tickets = get_stats_queryset("ticket", hospital_id, year, month,)
 
-    month_revenue = today_operations.aggregate(Sum('price'))['price__sum'] or 0
-    month_revenue += analyses.aggregate(Sum('price'))['price__sum'] or 0
-    month_revenue += medicaments.aggregate(Sum('price'))['price__sum'] or 0
-    month_revenue += tickets.aggregate(Sum('price'))['price__sum'] or 0
+    month_revenue = today_operations.aggregate(Sum('revenue'))["revenue__sum"] or 0
+    month_revenue += analyses.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    month_revenue += medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    month_revenue += tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
     return month_revenue
     
 
@@ -80,12 +82,12 @@ def get_response(hospital_id):
     today_medicaments = get_stats_queryset("medicament", hospital_id, today.year, today.month, today.day)
     today_tickets = get_stats_queryset("ticket", hospital_id, today.year, today.month, today.day)
 
-    today_revenue = today_operations.aggregate(Sum('price'))['price__sum'] or 0 
-    today_revenue += today_analyses.aggregate(Sum('price'))['price__sum'] or 0
-    today_revenue += today_medicaments.aggregate(Sum('price'))['price__sum'] or 0
-    today_revenue += today_tickets.aggregate(Sum('price'))['price__sum'] or 0
+    today_revenue = today_operations.aggregate(Sum('revenue'))['revenue__sum'] or 0 
+    today_revenue += today_analyses.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    today_revenue += today_medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    today_revenue += today_tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
 
-    month_revenue = get_range_revenue(hospital_id, today.month, today.year)
+    month_revenue = get_range_revenue(hospital_id, today.year, today.month)
     year_revenue = get_range_revenue(hospital_id, today.year,None)
         
     months_revenue = {}

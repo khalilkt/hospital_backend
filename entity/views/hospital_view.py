@@ -13,7 +13,7 @@ from entity.models.hospital import HopsitalPermission
 class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
-    search_fields = ['name', 'adresse']
+    search_fields = ['name', 'staff_members__name']
     ordering = ['id']
     queryset  = Hospital.objects.all()
     permission_classes = [IsAuthenticated,HopsitalPermission]

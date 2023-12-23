@@ -35,6 +35,8 @@ class User(AbstractBaseUser):
         return self.is_admin
 
 class UserSerializer(serializers.ModelSerializer):
+    assigned_hospital_name = serializers.CharField(source='assigned_hospital.name', read_only=True)
+    
     def create(self, validated_data):
         if "is_admin" in validated_data and  validated_data['is_admin']:
             user = User.objects.create_superuser(username=validated_data['username'], password=validated_data['password'], name=validated_data['name'])
@@ -43,6 +45,15 @@ class UserSerializer(serializers.ModelSerializer):
         user.assigned_hospital = validated_data['assigned_hospital']
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.assigned_hospital = validated_data.get('assigned_hospital', instance.assigned_hospital)
+        instance.username = validated_data.get('username', instance.username)   
+        if "password" in validated_data:
+            instance.set_password(validated_data['password'])
+        instance.save()
+        return instance
 
     class Meta:
         model = User
