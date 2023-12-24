@@ -23,7 +23,6 @@ class HospitalTicketView(ListCreateAPIView):
 class HospitalTicketsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = TicketSerializer
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
-    
 
     def get_object(self):
         hospital_id = self.kwargs['hospital_id']

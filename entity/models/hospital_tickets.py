@@ -7,8 +7,11 @@ class Ticket(models.Model):
     price = models.FloatField() #if has_duration is true then price is for 1 hour
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='tickets')
     created_at = models.DateTimeField(auto_now_add=True)
-    # 1 = 30min, 2 = hours, 3 = days
-    duration_type = models.SmallIntegerField(max_length=255, null=True, blank=True, )
+    # 1 = 30min, 2 = hours, 3 = days, 4 = months, 5 = years
+    duration_type = models.SmallIntegerField(max_length=255, null=True, blank=True)
+    is_subscription = models.BooleanField(default=False)
+
+
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:

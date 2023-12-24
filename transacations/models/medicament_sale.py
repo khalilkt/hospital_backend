@@ -14,7 +14,6 @@ class MedicamentSale(models.Model):
     patient = models.CharField(max_length=255)
 
 class MedicamentSaleSerializer(serializers.ModelSerializer):
-
     items = MedicamentSaleItemSerializer(many=True, read_only=False, source = 'medicament_sale_items')
     def __init__(self, instance=None, data=None,context = None, **kwargs):
         if context and "request" in context and  context["request"].method == "POST": 

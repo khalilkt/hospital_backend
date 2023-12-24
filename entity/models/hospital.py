@@ -20,6 +20,10 @@ class HospitalSerializer(serializers.ModelSerializer):
     tickets = TicketSerializer(many=True, read_only=True)
     payments = serializers.SerializerMethodField()
     staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name', source='staff_members')
+    has_subscription = serializers.SerializerMethodField()
+
+    def get_has_subscription(self, obj):
+        return obj.tickets.filter(is_subscription=True).exists()
 
     def get_payments(self, obj):
         ret = Payment.objects.filter(hospital=obj).order_by('-created_at')[:3]
