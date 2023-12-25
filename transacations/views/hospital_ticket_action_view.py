@@ -52,7 +52,7 @@ class Epoch(Func):
 
 class HospitalSubscribersView(ListAPIView):
     serializer_class = SubscriberSerializer
-    permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
+    permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser]
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     ordering = ['-start_date']
     search_fields = ["patient", "insurance_number"]
@@ -73,8 +73,8 @@ class HospitalSubscribersView(ListAPIView):
             start_date = F("created_at__date"),
             ticket_name = F("ticket__name"),
             dur = Coalesce(F("duration"), Value(0)) * Case(
-                When(ticket__duration_type = 4, then = Value(30)),
-                When(ticket__duration_type = 5, then = Value(365)),
+                When(ticket__duration_type = "4", then = Value(30)),
+                When(ticket__duration_type = "5", then = Value(365)),
                 default = Value(0),
                 output_field = IntegerField()
             ),
@@ -98,6 +98,6 @@ class HospitalSubscribersView(ListAPIView):
         )
         if status is not None: 
             ret = ret.filter(status = status)
-        ret =ret.values("patient", "start_date", "dur", "staff_name","id" , "ticket_name","start_date_epoch" ,"status", "end_date_epoch", "duration", "duration_type" )
+        ret =ret.values("patient", "payload" , "start_date", "dur", "staff_name","id" , "ticket_name","start_date_epoch" ,"status", "end_date_epoch", "duration", "duration_type" )
 
         return ret
