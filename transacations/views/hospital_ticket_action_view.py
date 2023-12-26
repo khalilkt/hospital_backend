@@ -1,5 +1,6 @@
 import datetime
 from rest_framework.views import APIView
+from entity.models.subs import SubscriptionAction
 from transacations.models import TicketAction, TicketActionSerializer
 from entity.models import Hospital
 from rest_framework.response import Response
@@ -12,7 +13,7 @@ from entity.models.hospital import IsHospitalDetailsAssignedUser
 from rest_framework import viewsets
 from django.db.models import F, Value, CharField, IntegerField, Q, Sum, Count, When , Case, BooleanField, ExpressionWrapper, DateField, DateTimeField, DurationField
 from django.db.models.functions import Concat, Coalesce, ExtractMonth, ExtractYear, ExtractDay
-from django.db.models import Func
+from django.db.models import JSONField, Func
 
 
 from transacations.models.ticket_action import SubscriberSerializer
@@ -60,6 +61,7 @@ class HospitalSubscribersView(ListAPIView):
 
     def get_queryset(self):
         status = self.request.query_params.get('status', None)
+        for_pirogue = self.request.query_params.get('for_pirogue', None)
         if status == "1":
             status = True
         elif status == "0":
@@ -68,7 +70,10 @@ class HospitalSubscribersView(ListAPIView):
             status = None
         
         hospital_id = self.kwargs['hospital_id']
-        ret = TicketAction.objects.filter(ticket__hospital= hospital_id, ticket__is_subscription = True)
+        ret = TicketAction.objects.filter(ticket__hospital= hospital_id)
+        if not for_pirogue == "true":
+            ret = ret.filter(ticket__is_subscription = True)
+            
         ret = ret.annotate(
             start_date = F("created_at__date"),
             ticket_name = F("ticket__name"),
@@ -83,21 +88,22 @@ class HospitalSubscribersView(ListAPIView):
 
         output_field=IntegerField()
     ),
-    duration_type = F("ticket__duration_type"),
-    end_date_epoch = ExpressionWrapper(
-        F('start_date_epoch') + (F("dur") * 24 * 60 * 60 ),
-        output_field=IntegerField()
-    ),
-            status = Case(
-                When(end_date_epoch__gte = datetime.datetime(2024,1,24).timestamp(), then = Value(True)),
-                default = Value(False),
-                output_field = BooleanField()
-            ),
-            staff_name = F("created_by__name"), 
+        duration_type = F("ticket__duration_type"),
+        end_date_epoch = ExpressionWrapper(
+            F('start_date_epoch') + (F("dur") * 24 * 60 * 60 ),
+            output_field=IntegerField()
+        ),
+        status = Case(
+            When(end_date_epoch__gte = datetime.datetime.now().timestamp(), then = Value(True)),
+            default = Value(False),
+            output_field = BooleanField()
+        ),
+        staff_name = F("created_by__name"), 
+        client_name = Coalesce(F("client__name"), Value("")),
             
         )
         if status is not None: 
             ret = ret.filter(status = status)
-        ret =ret.values("patient", "payload" , "start_date", "dur", "staff_name","id" , "ticket_name","start_date_epoch" ,"status", "end_date_epoch", "duration", "duration_type" )
+        ret =ret.values("patient", "payload" , "start_date", "staff_name","id" , "ticket_name","start_date_epoch" ,"status", "end_date_epoch", "duration", "duration_type", "client_name" )
 
         return ret

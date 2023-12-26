@@ -7,3 +7,4 @@ from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetai
 from .hospital_stats_view import HospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView
 from .hospital_tickets_view import HospitalTicketView, HospitalTicketsDetailView
 from .hospital_payments_view import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet
+from .subs import ClientsView, SubscriptionActionView

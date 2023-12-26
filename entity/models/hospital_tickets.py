@@ -10,8 +10,8 @@ class Ticket(models.Model):
     # 1 = 30min, 2 = hours, 3 = days, 4 = months, 5 = years
     duration_type = models.CharField(max_length=255, null=True, blank=True)
     is_subscription = models.BooleanField(default=False)
+    is_hospital_subscription = models.BooleanField(default=False) 
     required_payload = models.JSONField(default=dict, blank=True) 
-
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:

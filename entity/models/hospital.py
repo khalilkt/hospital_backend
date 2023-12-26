@@ -14,6 +14,9 @@ class Hospital(models.Model):
     is_hospital = models.BooleanField(default=False) # if yes then we will only have tickets
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
+    subscription_price = models.IntegerField(null = True, blank = True)
+    show_in_subs = models.BooleanField(default=False)
+    specialization = models.CharField(max_length=255, null=True, blank=True)
 
 class HospitalSerializer(serializers.ModelSerializer):
     # staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='staff_members')

@@ -15,6 +15,7 @@ class AnalyseActionSerializer(serializers.ModelSerializer):
     analyse_name = serializers.CharField(source='analyse.name', read_only=True)
     code = serializers.CharField(source='analyse.code', read_only=True)
     staff_name = serializers.CharField(source='created_by.name', read_only=True) 
+    
     def __init__(self, instance=None, data=None,context = None, **kwargs):
         if context and "request" in context and  context["request"].method == "POST": 
             current_user = context['request'].user

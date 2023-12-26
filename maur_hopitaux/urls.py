@@ -23,6 +23,7 @@ from auth_app.views import LoginTokenView, LoginView , RegisterView
 from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView
 from transacations.views.insurances_view import InsuranceViews
 from auth_app.views import UsersViewSet
+from entity.views import ClientsView, SubscriptionActionView
 
 router = DefaultRouter()
 
@@ -33,6 +34,11 @@ router.register('users', UsersViewSet, basename='users')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('hospital/<int:hospital_id>/clients', ClientsView.as_view(), name='hospital_clients'),
+    path('hospital/<int:hospital_id>/clients_subs', SubscriptionActionView.as_view(), name='hospital_clients_subs'),
+    
+
     path('hospital/<int:hospital_id>/inventory', HospitalInventoryView.as_view(), name='hospital_inventory'),
     path('hospital/<int:hospital_id>/inventory/bulk', HospitalInventoryBulkAddView.as_view(), name='hospital_inventory_bulk_add'),
     path('hospital/<int:hospital_id>/inventory/<int:pk>', HospitalInventoryDetailView.as_view(), name='hospital_inventory_detail'),
