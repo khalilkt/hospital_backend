@@ -3,6 +3,7 @@ from  entity.models.subs import Client, ClientSerializer, SubscriptionAction, Su
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.db.models import F, Value, CharField, IntegerField, Q, Sum, Count, When , Case, BooleanField, ExpressionWrapper, DateField, DateTimeField, DurationField
 
 class ClientsView(ListCreateAPIView):
     serializer_class = ClientSerializer

@@ -5,6 +5,8 @@ from django.db.models import F, CharField, Sum , When, Case, DecimalField, Expre
 from rest_framework import serializers
 from rest_framework.fields import empty
 
+from entity.models.hospital_tickets import TicketSerializer
+
 class ClientManager(models.Manager): 
     def with_status(self):
         last_sub  = Subquery(self.model.objects.filter(id=OuterRef('id')).order_by('-subscriptions__created_at').values('subscriptions__created_at')[:1])
@@ -36,7 +38,14 @@ class Client(models.Model):
 class ClientSerializer(serializers.ModelSerializer):
     status = serializers.BooleanField(read_only=True)
     end_date = serializers.DateTimeField(read_only=True)
-    
+    tickets = serializers.SerializerMethodField(read_only=True)
+
+    def get_tickets(self, obj): 
+        from transacations.models.ticket_action import TicketActionSerializer
+        ret = obj.ticket_actions
+        return TicketActionSerializer(ret, many=True).data
+
+
 
     class Meta:
         model = Client
