@@ -1,6 +1,6 @@
 import datetime
 from rest_framework.views import APIView
-from entity.models.subs import SubscriptionAction
+# from entity.models.subs import SubscriptionActionß
 from transacations.models import TicketAction, TicketActionSerializer
 from entity.models import Hospital
 from rest_framework.response import Response

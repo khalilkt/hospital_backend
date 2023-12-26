@@ -21,7 +21,7 @@ from entity.views import HospitalPaymentsView, HospitalPaymentsDetailView, Payme
 from transacations.views import HospitalTicketsActionsView, HospitalTicketActionsDetailView, HospitalAnalysesActionsView, HospitalAnalysesActionsDetailView, HospitalOperationActionsView, HospitalOperationActionsDetailView, HospitalSubscribersView
 from auth_app.views import LoginTokenView, LoginView , RegisterView
 from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView
-from transacations.views.insurances_view import InsuranceViews
+from transacations.views.insurances_view import InsuranceViews, TotalInsuranceView
 from auth_app.views import UsersViewSet
 from entity.views import ClientsView, SubscriptionActionView
 
@@ -37,7 +37,7 @@ urlpatterns = [
 
     path('hospital/<int:hospital_id>/clients', ClientsView.as_view(), name='hospital_clients'),
     path('hospital/<int:hospital_id>/clients_subs', SubscriptionActionView.as_view(), name='hospital_clients_subs'),
-    
+    path('hospital/<int:hospital_id>/subscribers', HospitalSubscribersView.as_view(), name='hospital_subscribers'),
 
     path('hospital/<int:hospital_id>/inventory', HospitalInventoryView.as_view(), name='hospital_inventory'),
     path('hospital/<int:hospital_id>/inventory/bulk', HospitalInventoryBulkAddView.as_view(), name='hospital_inventory_bulk_add'),
@@ -67,7 +67,6 @@ urlpatterns = [
     path('hospital/<int:hospital_id>/analyses', HospitalAnalysesView.as_view(), name='hospital_analyses'),
     path('hospital/<int:hospital_id>/analyses/<int:pk>', HospitalAnalysesDetailView.as_view(), name='hospital_analyses_detail'),
 
-    path('hospital/<int:hospital_id>/subscribers', HospitalSubscribersView.as_view(), name='hospital_subscribers'),
 
     path('hospital/<int:hospital_id>/stats', HospitalStatsView.as_view(), name='hospital_stats'),
     path('hospital/<int:hospital_id>/stats/sales', HospitalSalesStatsDetailView.as_view(), name='hospital_sales_stats'),
@@ -79,6 +78,8 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
 
     path("hospital/<int:hospital_id>/insurances", InsuranceViews.as_view(), name="hospital_insurances"),
+    path("hospital/<int:hospital_id>/insurances/total", TotalInsuranceView.as_view(), name="hospital_insurances_total"),
+
 
 ]
 

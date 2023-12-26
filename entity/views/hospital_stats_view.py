@@ -14,7 +14,7 @@ from transacations.models.medicament_sale import MedicamentSale
 from django.db.models import Sum, Count, F, Q, Value, CharField, IntegerField, When, Case
 from rest_framework import serializers
 from django.db.models.functions import Concat, Coalesce
-from entity.models import SubscriptionAction
+
 
 class StatsSerializer(serializers.Serializer):
     today_operations_count = serializers.IntegerField() 
@@ -80,15 +80,15 @@ def get_stats_queryset(action, hospital_id = None,  year = None, month = None, d
     ))
         if hospital_id:
             ret = ret.filter(ticket__hospital = hospital_id)
-    elif action == "subs":
-        ret = SubscriptionAction.objects
-        ret = ret.annotate(revenue = F("price") * Case( 
-        When(client__hospital = hospital_id, then = Value(0.1)),
-        default = Value(1),
-        output_field = IntegerField()
-        ))
-        if hospital_id:
-            ret = ret.filter(client__hospital = hospital_id)
+    # elif action == "subs":
+        # ret = SubscriptionAction.objects
+        # ret = ret.annotate(revenue = F("price") * Case( 
+        # When(client__hospital = hospital_id, then = Value(0.1)),
+        # default = Value(1),
+        # output_field = IntegerField()
+        # ))
+        # if hospital_id:
+        #     ret = ret.filter(client__hospital = hospital_id)
     else:
         raise serializers.ValidationError("Action not found : " + action )      
 
@@ -107,13 +107,13 @@ def get_range_revenue( hospital_id, year , month):
     analyses = get_stats_queryset("analyse", hospital_id, year, month,)
     medicaments = get_stats_queryset("medicament", hospital_id, year, month,)
     tickets = get_stats_queryset("ticket", hospital_id, year, month,)
-    subs = get_stats_queryset("subs", hospital_id, year, month,)
+    # subs = get_stats_queryset("subs", hospital_id, year, month,)
 
     month_revenue = operations.aggregate(Sum('revenue'))["revenue__sum"] or 0
     month_revenue += analyses.aggregate(Sum('revenue') )['revenue__sum'] or 0
     month_revenue += medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     month_revenue += tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
-    month_revenue += subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    # month_revenue += subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
     return month_revenue
     
 def get_sales_detail(hospital_id, year, month, day = None): 
@@ -122,22 +122,22 @@ def get_sales_detail(hospital_id, year, month, day = None):
     analyses = get_stats_queryset("analyse", hospital_id, year, month, day)
     medicaments = get_stats_queryset("medicament", hospital_id, year, month, day)
     tickets = get_stats_queryset("ticket", hospital_id, year, month, day)
-    subs = get_stats_queryset("subs", hospital_id, year, month, day)
+    # subs = get_stats_queryset("subs", hospital_id, year, month, day)
 
     operations_count = operations.count() 
     analyses_count = analyses.count()
     medicaments_count = medicaments.count()
     tickets_count = tickets.count()
-    subs_count = subs.count()
-    tickets_count += subs_count
+    # subs_count = subs.count()
+    # tickets_count += subs_count
 
     operations_revenue = operations.aggregate(Sum('revenue'))['revenue__sum'] or 0 
     analyses_revenue = analyses.aggregate(Sum('revenue'))['revenue__sum'] or 0 
     medicaments_revenue = medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     tickets_revenue = tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
-    subs_revenue = subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    # subs_revenue = subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
 
-    tickets_revenue += subs_revenue
+    # tickets_revenue += subs_revenue
 
     total_revenue =   operations_revenue + analyses_revenue + medicaments_revenue + tickets_revenue
 
@@ -163,13 +163,13 @@ def get_response(hospital_id):
     today_analyses = get_stats_queryset("analyse", hospital_id, today.year, today.month, today.day)
     today_medicaments = get_stats_queryset("medicament", hospital_id, today.year, today.month, today.day)
     today_tickets = get_stats_queryset("ticket", hospital_id, today.year, today.month, today.day)
-    today_subs = get_stats_queryset("subs", hospital_id, today.year, today.month, today.day)
+    # today_subs = get_stats_queryset("subs", hospital_id, today.year, today.month, today.day)
 
     today_revenue = today_operations.aggregate(Sum('revenue'))['revenue__sum'] or 0 
     today_revenue += today_analyses.aggregate(Sum('revenue'))['revenue__sum'] or 0
     today_revenue += today_medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     today_revenue += today_tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
-    today_revenue += today_subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    # today_revenue += today_subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
 
     month_revenue = get_range_revenue(hospital_id, today.year, today.month)
     year_revenue = get_range_revenue(hospital_id, today.year,None)

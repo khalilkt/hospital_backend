@@ -4,29 +4,44 @@ import datetime
 from django.db.models import F, CharField, Sum , When, Case, DecimalField, ExpressionWrapper, Subquery, OuterRef, Value, BooleanField
 from rest_framework import serializers
 from rest_framework.fields import empty
-
+from transacations.models import TicketAction
 from entity.models.hospital_tickets import TicketSerializer
+from django.db.models.functions import Coalesce
+from django.db.models import JSONField, Func, Value, CharField, IntegerField, When, Case, BooleanField, ExpressionWrapper, DateField, DateTimeField, DurationField
 
 class ClientManager(models.Manager): 
     def with_status(self):
-        last_sub  = Subquery(self.model.objects.filter(id=OuterRef('id')).order_by('-subscriptions__created_at').values('subscriptions__created_at')[:1])
-        return self.annotate(
-            # end_date = last_sun__created_at + 365 days
-            end_date = ExpressionWrapper(
-                last_sub + datetime.timedelta(days=365),
-                output_field=models.DateTimeField()
+        sub = TicketAction.objects.filter(ticket__is_hospital_subscription = True, client = OuterRef("pk")).values('ticket').annotate(
+             dur = Coalesce(F("duration"), Value(0)) * Case(
+                When(ticket__duration_type = "4", then = Value(30)),
+                When(ticket__duration_type = "5", then = Value(365)),
+                default = Value(0),
+                output_field = IntegerField()
             ),
-          
-            status = 
-                Case(
-                    When(end_date__gte = datetime.datetime.now(), then = Value(True)),
-                    default = Value(False),
-                    output_field = BooleanField()
-                )
-               
+            start_date_epoch = ExpressionWrapper(
+        (F('created_at') - datetime.datetime(1970, 1, 1)) / 1_000_000,
+        output_field=IntegerField()
+    ),
+            end_date_epoch = ExpressionWrapper(
+            F('start_date_epoch') + (F("dur") * 24 * 60 * 60 ),
+            output_field=IntegerField()
+        ),
+        ).order_by("-start_date_epoch")
+
+        ret = self.annotate(
+            # get last subscription
+            last_sub = Subquery(sub.values('end_date_epoch')[:1]),
+            is_active = Case(
+                When(last_sub__isnull = True, then = Value(False)),
+                When(last_sub__gte = datetime.datetime.now().timestamp(), then = Value(True)),
+                default = Value(False),
+                output_field = BooleanField()
+            ),
             
 
         )
+
+        return ret
 
 
 class Client(models.Model):
@@ -39,7 +54,8 @@ class ClientSerializer(serializers.ModelSerializer):
     status = serializers.BooleanField(read_only=True)
     end_date = serializers.DateTimeField(read_only=True)
     tickets = serializers.SerializerMethodField(read_only=True)
-
+    is_active = serializers.BooleanField(read_only=True)   
+    last_sub = serializers.IntegerField(read_only=True)
     def get_tickets(self, obj): 
         from transacations.models.ticket_action import TicketActionSerializer
         ret = obj.ticket_actions
@@ -49,25 +65,4 @@ class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = "__all__"
-
-class SubscriptionAction(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='subscriptions')
-    price = models.PositiveIntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='subscription_actions', on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)    
-
-class SubscriptionActionSerializer(serializers.ModelSerializer):
-    client_name = serializers.CharField(source='client.name', read_only=True)
-    staff_name = serializers.CharField(source='created_by.name', read_only=True)
-
-    def __init__(self, instance=None, data=None,context = None, **kwargs):
-        if context and "request" in context and  context["request"].method == "POST": 
-            current_user = context['request'].user
-            data['created_by'] = current_user.id
-        super().__init__(instance, data, **kwargs)
-
-    class Meta:
-        model = SubscriptionAction
         fields = "__all__"

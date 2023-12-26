@@ -5,7 +5,7 @@ from rest_framework.fields import empty
 import datetime, time
 from django.utils import timezone
 from entity.models.hospital_tickets import TicketSerializer, Ticket
-from entity.models.subs import SubscriptionAction
+# from entity.models.subs import SubscriptionAction
 
 class TicketAction(models.Model):
     ticket = models.ForeignKey('entity.Ticket', on_delete=models.CASCADE, related_name='actions')
@@ -27,6 +27,8 @@ class TicketActionSerializer(serializers.ModelSerializer):
     duration_type = serializers.CharField(source='ticket.duration_type', read_only=True)
     staff_name = serializers.CharField(source='created_by.name', read_only=True)
     payload = serializers.JSONField(required=True)
+    is_hospital_subscription = serializers.BooleanField(source='ticket.is_hospital_subscription', read_only=True)
+    is_subscription = serializers.BooleanField(source='ticket.is_subscription', read_only=True)
 
     def validate_payload(self, value):
         ticket_id = self.initial_data.get("ticket", None)

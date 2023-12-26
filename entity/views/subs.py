@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from  entity.models.subs import Client, ClientSerializer, SubscriptionAction, SubscriptionActionSerializer
+from  entity.models.subs import Client, ClientSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -14,21 +14,21 @@ class ClientsView(ListCreateAPIView):
     
 
     def get_queryset(self):
-        status = self.request.query_params.get('status', None) 
+        is_active = self.request.query_params.get('is_active', None) 
         hospital_id = self.kwargs['hospital_id']    
         ret = Client.objects.with_status().filter(hospital = hospital_id)
-        if status == "active":
-            ret = ret.filter(status = True)
-        elif status == "inactive":
-            ret = ret.filter(status = False)
+        if is_active == "active":
+            ret = ret.filter(is_active = True)
+        elif is_active == "inactive":
+            ret = ret.filter(is_active = False)
                 
         return ret
     
 class SubscriptionActionView(ListCreateAPIView):
-    serializer_class = SubscriptionActionSerializer
+    # serializer_class = SubscriptionActionSerializer
     permission_classes = (IsAuthenticated, IsAdminUser)
 
-    def get_queryset(self):
-        hospital_id = self.kwargs['hospital_id']    
-        return SubscriptionAction.objects.filter(client__hospital = hospital_id)
+    # def get_queryset(self):
+    #     hospital_id = self.kwargs['hospital_id']    
+    #     return SubscriptionAction.objects.filter(client__hospital = hospital_id)
     
