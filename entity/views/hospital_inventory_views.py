@@ -54,23 +54,23 @@ class HospitalInventoryBulkAddView(APIView):
         data = request.data
         if not isinstance(data, list):
             return Response({"error" : "data should be a list"}, status=400)
-        # for item in data:
-        #     if not "name" in item:
-        #         return Response({"error" : "name is required"}, status=400)
-        #     if not "category" in item:
-        #         return Response({"error" : "category is required"}, status=400)
-        #     if not "codebarres" in item:
-        #         return Response({"error" : "codebarres is required"}, status=400)
-        #     if not "price" in item:
-        #         return Response({"error" : "price is required"}, status=400)
-        #     if not "quantity" in item:
-        #         return Response({"error" : "quantity is required"}, status=400)
-        #     if not "description" in item:
-        #         return Response({"error" : "description is required"}, status=400)
+
         for item in data:
             item["hospital"] = hospital_id
-        serializer = MedicamentSerializer(data=data, many=True, context={"request" : request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status = 400)
+            if not "name" in item:
+                return Response({"error" : "name is required"}, status=400)
+            if Medicament.objects.filter(hospital = hospital_id, name = item["name"]).exists():
+                medic = Medicament.objects.get(hospital = hospital_id, name = item["name"]) 
+                item["quantity"] = item["quantity"] + medic.quantity
+                medic = MedicamentSerializer(medic, data=item)
+                if medic.is_valid():
+                    medic.save()
+                else:
+                    return Response(medic.errors, status = 400)
+            else:
+                serializer = MedicamentSerializer(data=item)
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return Response(serializer.errors, status = 400)
+        return Response(status = 200)
