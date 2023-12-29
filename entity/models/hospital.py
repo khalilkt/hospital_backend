@@ -6,7 +6,6 @@ from entity.models.medicament import MedicamentSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import BasePermission
 
-from transacations.models.payment import Payment, PaymentSerializer
 
 class Hospital(models.Model):
     name = models.CharField(max_length=255)
@@ -17,21 +16,23 @@ class Hospital(models.Model):
     subscription_price = models.IntegerField(null = True, blank = True)
     show_in_subs = models.BooleanField(default=False)
     specialization = models.CharField(max_length=255, null=True, blank=True)
+    bank_account = models.CharField(max_length=255) 
 
 class HospitalSerializer(serializers.ModelSerializer):
     # staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='staff_members')
     tickets = TicketSerializer(many=True, read_only=True)
-    payments = serializers.SerializerMethodField()
     staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name', source='staff_members')
     has_subscription = serializers.SerializerMethodField()
+    stock_alerts = serializers.SerializerMethodField()
+
+    def get_stock_alerts(self, obj):
+        ret = obj.medicament.filter(quantity__lte = 10)
+        return MedicamentSerializer(ret, many=True).data
+    
 
     def get_has_subscription(self, obj):
         return obj.tickets.filter(is_subscription=True).exists()
 
-    def get_payments(self, obj):
-        ret = Payment.objects.filter(hospital=obj).order_by('-created_at')[:3]
-        return PaymentSerializer(ret, many=True).data
-    
     class Meta:
         model = Hospital
         fields = "__all__"

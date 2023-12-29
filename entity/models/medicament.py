@@ -13,7 +13,7 @@ class Medicament(models.Model):
 class MedicamentSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if  self.context['request'].method == 'POST' and "hospital_id" in self.context:
+        if self.context and "request" in self.context and  self.context['request'].method == 'POST' and "hospital_id" in self.context:
             self.initial_data["hospital"] = self.context["hospital_id"]
     
     class Meta:

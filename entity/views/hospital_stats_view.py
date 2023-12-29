@@ -37,8 +37,7 @@ class detailStatsSerializer(serializers.Serializer):
     tickets_revenue = serializers.FloatField()
     total_revenue = serializers.FloatField()
     
-
-def get_stats_queryset(action, hospital_id = None,  year = None, month = None, day = None):
+def get_queryset(action, hospital_id = None):
     ret  = None
     if action== "operation" : 
         ret = OperationAction.objects
@@ -80,18 +79,13 @@ def get_stats_queryset(action, hospital_id = None,  year = None, month = None, d
     ))
         if hospital_id:
             ret = ret.filter(ticket__hospital = hospital_id)
-    # elif action == "subs":
-        # ret = SubscriptionAction.objects
-        # ret = ret.annotate(revenue = F("price") * Case( 
-        # When(client__hospital = hospital_id, then = Value(0.1)),
-        # default = Value(1),
-        # output_field = IntegerField()
-        # ))
-        # if hospital_id:
-        #     ret = ret.filter(client__hospital = hospital_id)
+    
     else:
-        raise serializers.ValidationError("Action not found : " + action )      
+        raise serializers.ValidationError("Action not found : " + str(action) )  
+    return ret
 
+def get_stats_queryset_bymonthyear(action, hospital_id = None,  year = None, month = None, day = None):
+    ret = get_queryset(action, hospital_id)
     if day:
         ret = ret.filter(created_at__day = str(day))
     if month:
@@ -102,11 +96,40 @@ def get_stats_queryset(action, hospital_id = None,  year = None, month = None, d
     ret = ret.values("revenue", "created_at").order_by("-created_at")
     return ret
 
+def get_stats_queryset_bysDate_eDate(action, hospital_id = None,  sDate = None, eDate = None):
+    ret = get_queryset(action, hospital_id)
+    if sDate:
+        ret = ret.filter(created_at__date__gte = sDate)
+    if eDate:
+        ret = ret.filter(created_at__date__lt = eDate)
+      
+    ret = ret.values("revenue", "created_at").order_by("-created_at")
+    return ret
+
+def get_range_date_revenue(hospital_id, sDate, eDate, include_hospital = False, include_pharmacy = False):
+    if not include_hospital and not include_pharmacy:
+        raise serializers.ValidationError("include_hospital or include_pharmacy must be true")
+    
+    if include_hospital:
+        operations = get_stats_queryset_bysDate_eDate("operation", hospital_id, sDate, eDate)
+        analyses = get_stats_queryset_bysDate_eDate("analyse", hospital_id, sDate, eDate)
+        tickets = get_stats_queryset_bysDate_eDate("ticket", hospital_id, sDate, eDate)
+    if include_pharmacy : 
+        medicaments = get_stats_queryset_bysDate_eDate("medicament", hospital_id, sDate, eDate)
+    range_revenue = 0
+    if include_hospital:
+        range_revenue += operations.aggregate(Sum('revenue'))["revenue__sum"] or 0
+        range_revenue += analyses.aggregate(Sum('revenue') )['revenue__sum'] or 0
+        range_revenue += tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    if include_pharmacy:
+        range_revenue += medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    return range_revenue
+
 def get_range_revenue( hospital_id, year , month):
-    operations = get_stats_queryset("operation", hospital_id, year, month,)
-    analyses = get_stats_queryset("analyse", hospital_id, year, month,)
-    medicaments = get_stats_queryset("medicament", hospital_id, year, month,)
-    tickets = get_stats_queryset("ticket", hospital_id, year, month,)
+    operations = get_stats_queryset_bymonthyear("operation", hospital_id, year, month,)
+    analyses = get_stats_queryset_bymonthyear("analyse", hospital_id, year, month,)
+    medicaments = get_stats_queryset_bymonthyear("medicament", hospital_id, year, month,)
+    tickets = get_stats_queryset_bymonthyear("ticket", hospital_id, year, month,)
     # subs = get_stats_queryset("subs", hospital_id, year, month,)
 
     month_revenue = operations.aggregate(Sum('revenue'))["revenue__sum"] or 0
@@ -116,12 +139,13 @@ def get_range_revenue( hospital_id, year , month):
     # month_revenue += subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
     return month_revenue
     
+
 def get_sales_detail(hospital_id, year, month, day = None): 
 
-    operations = get_stats_queryset("operation", hospital_id, year, month,day)
-    analyses = get_stats_queryset("analyse", hospital_id, year, month, day)
-    medicaments = get_stats_queryset("medicament", hospital_id, year, month, day)
-    tickets = get_stats_queryset("ticket", hospital_id, year, month, day)
+    operations = get_stats_queryset_bymonthyear("operation", hospital_id, year, month,day)
+    analyses = get_stats_queryset_bymonthyear("analyse", hospital_id, year, month, day)
+    medicaments = get_stats_queryset_bymonthyear("medicament", hospital_id, year, month, day)
+    tickets = get_stats_queryset_bymonthyear("ticket", hospital_id, year, month, day)
     # subs = get_stats_queryset("subs", hospital_id, year, month, day)
 
     operations_count = operations.count() 
@@ -159,10 +183,10 @@ def get_sales_detail(hospital_id, year, month, day = None):
 def get_response(hospital_id): 
     today = datetime.datetime.now().date()
     # today = today - datetime.timedelta(days=2)
-    today_operations = get_stats_queryset("operation", hospital_id, today.year, today.month, today.day)
-    today_analyses = get_stats_queryset("analyse", hospital_id, today.year, today.month, today.day)
-    today_medicaments = get_stats_queryset("medicament", hospital_id, today.year, today.month, today.day)
-    today_tickets = get_stats_queryset("ticket", hospital_id, today.year, today.month, today.day)
+    today_operations = get_stats_queryset_bymonthyear("operation", hospital_id, today.year, today.month, today.day)
+    today_analyses = get_stats_queryset_bymonthyear("analyse", hospital_id, today.year, today.month, today.day)
+    today_medicaments = get_stats_queryset_bymonthyear("medicament", hospital_id, today.year, today.month, today.day)
+    today_tickets = get_stats_queryset_bymonthyear("ticket", hospital_id, today.year, today.month, today.day)
     # today_subs = get_stats_queryset("subs", hospital_id, today.year, today.month, today.day)
 
     today_revenue = today_operations.aggregate(Sum('revenue'))['revenue__sum'] or 0 

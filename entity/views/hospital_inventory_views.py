@@ -31,7 +31,6 @@ class HospitalInventoryDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = MedicamentSerializer
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser ]
     
-
     def get_object(self):
         hospital_id = self.kwargs['hospital_id']
         id = self.kwargs['pk']
@@ -41,6 +40,14 @@ class HospitalInventoryDetailView(RetrieveUpdateDestroyAPIView):
             return Response(status = status.HTTP_404_NOT_FOUND)
         
 # create a bulk add view
+        
+
+
+class HospitalInventoryAlertView(APIView):
+    def get(self, request, hospital_id):
+        ret = Medicament.objects.filter(hospital = hospital_id, quantity__lte = 10).order_by("quantity")
+        serializer = MedicamentSerializer(ret, many=True, context={"request" : request})
+        return Response(serializer.data)
 
 class HospitalInventoryBulkAddView(APIView):
     def post(self, request, hospital_id):
