@@ -54,8 +54,8 @@ class HospitalPaymentsView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
-    ordering = ['id']
-    search_fields = ['name']
+    ordering = ['-created_at']
+    search_fields = ['hospital__name', "account", "quittance_number","amount" ]
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
@@ -83,6 +83,7 @@ class WeekPaymentSerializer(serializers.Serializer):
 
 class HopsitalNotPayedView(APIView):
     serializer_class = WeekPaymentSerializer
+
     def get(self, request, hospital_id):
         for_pharmacy = self.request.query_params.get('for_pharmacy', False)
         if for_pharmacy:
@@ -118,4 +119,3 @@ class HopsitalNotPayedView(APIView):
         page = paginator.paginate_queryset(ret, request)
         serializer = WeekPaymentSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
-        

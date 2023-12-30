@@ -13,7 +13,7 @@ class HospitalInventoryView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser]
     ordering = ['id']
-    search_fields = ['name', "codebarres", "price"]
+    search_fields = ['name', "price"]
 
     def get_serializer_context(self):
         hospital_id = self.kwargs['hospital_id']    

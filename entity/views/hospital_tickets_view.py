@@ -14,7 +14,7 @@ class HospitalTicketView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
-    ordering = ['id']
+    ordering = ['-created_at']
     search_fields = ['name', 'price',]
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']

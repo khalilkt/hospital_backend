@@ -9,8 +9,8 @@ class HospitalSalesView(ListCreateAPIView):
     serializer_class = MedicamentSaleSerializer
 
     filter_backends = [filters.OrderingFilter]
-    ordering = ['id']
-    search_fields = ['medicament__name', 'medicament__codebarres', "date", "price"]
+    ordering = ['-created_at']
+    search_fields = ['medicament__name', "date", "price"]
     def get_queryset(self):
         return MedicamentSale.objects.filter(hospital=self.kwargs['hospital_id'])
 

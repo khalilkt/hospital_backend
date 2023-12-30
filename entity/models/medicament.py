@@ -6,7 +6,6 @@ class Medicament(models.Model):
     price = models.FloatField()
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='medicament')
     quantity = models.IntegerField()
-    codebarres = models.CharField(max_length=255)    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
