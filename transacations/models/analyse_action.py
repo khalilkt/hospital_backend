@@ -6,6 +6,7 @@ from rest_framework import serializers
 class AnalyseAction(models.Model) :
     analyse = models.ForeignKey('entity.Analyses', on_delete=models.PROTECT, related_name='actions')
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
+    is_taazour_insurance = models.BooleanField()
     patient  = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     price = models.PositiveIntegerField()

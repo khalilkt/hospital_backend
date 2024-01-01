@@ -1,5 +1,5 @@
 from .hospital_view import HospitalViewSet
-from .hospital_inventory_views import HospitalInventoryView, HospitalInventoryDetailView, HospitalInventoryBulkAddView, HospitalInventoryAlertView
+from .hospital_inventory_views import HospitalInventoryView, HospitalInventoryDetailView, HospitalInventoryBulkAddView, HospitalInventoryAlertView, HospitalInventoryAllView
 from .hospital_sales_view import HospitalSalesView, HospitalSalesDetailView
 from .hospital_operations_view import HospitalOperationsDetailView, HospitalOperationsView
 from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetailView

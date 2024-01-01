@@ -11,6 +11,8 @@ class MedicamentSale(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='medicaments_actions', on_delete=models.SET_NULL, null=True, blank=True)
     insurance_number = models.CharField(max_length=255, null=True, blank=True) 
+    is_taazour_insurance = models.BooleanField()
+
     patient = models.CharField(max_length=255)
 
 class MedicamentSaleSerializer(serializers.ModelSerializer):

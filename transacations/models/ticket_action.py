@@ -13,6 +13,7 @@ class TicketAction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ticket_actions', on_delete=models.SET_NULL, null=True, blank=True)
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
+    is_taazour_insurance = models.BooleanField()
     patient = models.CharField(max_length=255, null=True, blank=True) 
     client = models.ForeignKey('entity.Client', on_delete=models.CASCADE, related_name='ticket_actions', null=True, blank=True)
 

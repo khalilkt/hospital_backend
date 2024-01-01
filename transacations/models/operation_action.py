@@ -6,6 +6,8 @@ from rest_framework import serializers
 class OperationAction(models.Model):
     operation = models.ForeignKey('entity.Operations', on_delete=models.CASCADE, related_name='actions')
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
+    is_taazour_insurance = models.BooleanField()
+
     # planned_date = models.DateTimeField()
     patient = models.CharField(max_length=255)
     duration = models.PositiveIntegerField()

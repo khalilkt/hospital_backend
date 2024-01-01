@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, HospitalInventoryBulkAddView , HospitalInventoryAlertView, HospitalTicketView, HospitalTicketsDetailView
+from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, HospitalInventoryBulkAddView , HospitalInventoryAllView, HospitalInventoryAlertView, HospitalTicketView, HospitalTicketsDetailView
 from entity.views import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet, HopsitalNotPayedView
 from transacations.views import HospitalTicketsActionsView, HospitalTicketActionsDetailView, HospitalAnalysesActionsView, HospitalAnalysesActionsDetailView, HospitalOperationActionsView, HospitalOperationActionsDetailView, HospitalSubscribersView
 from auth_app.views import LoginTokenView, LoginView , RegisterView
@@ -43,6 +43,7 @@ urlpatterns = [
 
     path('hospital/<int:hospital_id>/inventory', HospitalInventoryView.as_view(), name='hospital_inventory'),
     path('hospital/<int:hospital_id>/inventory/bulk', HospitalInventoryBulkAddView.as_view(), name='hospital_inventory_bulk_add'),
+    path('hospital/<int:hospital_id>/inventory/all', HospitalInventoryAllView.as_view(), name='hospital_inventory_all'),
     path('hospital/<int:hospital_id>/inventory/alerts', HospitalInventoryAlertView.as_view(), name='hospital_inventory_detail'),
     path('hospital/<int:hospital_id>/inventory/<int:pk>', HospitalInventoryDetailView.as_view(), name='hospital_inventory_detail'),
 

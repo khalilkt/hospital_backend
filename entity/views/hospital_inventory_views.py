@@ -74,3 +74,9 @@ class HospitalInventoryBulkAddView(APIView):
                 else:
                     return Response(serializer.errors, status = 400)
         return Response(status = 200)
+    
+class HospitalInventoryAllView(APIView):
+    def get(self, request, hospital_id):
+        ret = Medicament.objects.filter(hospital = hospital_id).order_by("quantity")
+        serializer = MedicamentSerializer(ret, many=True, context={"request" : request})
+        return Response(serializer.data)

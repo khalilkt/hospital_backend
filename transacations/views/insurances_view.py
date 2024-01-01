@@ -8,10 +8,15 @@ from django.db.models.functions import Concat, Coalesce
 import datetime
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db.models import When, Case, FloatField , F, Q, ExpressionWrapper
+from rest_framework.permissions import IsAuthenticated
+
+
 
 class InssuranceSerializer(serializers.Serializer):
     name = serializers.CharField()
     insurance_number = serializers.CharField()
+    is_taazour_insurance = serializers.BooleanField()
     revenue = serializers.IntegerField()
     created_at = serializers.DateTimeField()
     iid  = serializers.CharField() 
@@ -33,13 +38,16 @@ def def_query(hospital_id, year = None , month = None):
         medicament_Q = medicament_Q.filter(created_at__month = month)
         ticket_Q = ticket_Q.filter(created_at__month = month)
     
-    ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("price")).union(
-        analyse_Q.annotate(name = F('analyse__name'), iid = Concat(Value("an_"), F("id"), output_field=CharField()), revenue=F("price"))
+    ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("price")
+     ).union(
+        analyse_Q.annotate(name = F('analyse__name'), iid = Concat(Value("an_"), F("id"), output_field=CharField()), revenue=F("price"), )
     ).union(
-        medicament_Q.annotate( name = Value("Vente de medicament", output_field=CharField()),iid = Concat(Value("sl_"), F("id"), output_field=CharField()), revenue = Sum(F("medicament_sale_items__sale_price") * F("medicament_sale_items__quantity")) )
+        medicament_Q.annotate( name = Value("Vente de medicament", output_field=CharField()),iid = Concat(Value("sl_"), F("id"), output_field=CharField()), revenue = Sum(F("medicament_sale_items__sale_price") * F("medicament_sale_items__quantity"))
+    
+    )
     ).union(
-        ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("price") * Coalesce(F("duration"), Value(1)) )
-    ).values('name', 'created_at', 'insurance_number',"iid","revenue").order_by('-created_at')
+        ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("price") * Coalesce(F("duration"), Value(1)))
+    ).values('name', 'created_at', 'insurance_number', "is_taazour_insurance","iid","revenue" , "is_taazour_insurance").order_by('-created_at')
     return ret
 
 class TotalInsuranceView(APIView):
@@ -47,7 +55,8 @@ class TotalInsuranceView(APIView):
         year = self.request.query_params.get('year', None)
         month = self.request.query_params.get('month', None)
         ret = def_query(hospital_id, year, month)
-        ret = ret.aggregate(total_revenue = Sum("revenue"))
+
+        ret = ret.aggregate(total_revenue =ExpressionWrapper( Sum("revenue") , output_field=FloatField()))
         return Response(ret)
 
 class InsuranceViews(ListAPIView):
@@ -58,10 +67,8 @@ class InsuranceViews(ListAPIView):
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
-
         month = self.request.query_params.get('month', None)
         year = self.request.query_params.get('year', None)
-
         ret = def_query(hospital_id, year, month)
        
         return ret 
