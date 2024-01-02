@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.permissions import  IsAuthenticated, IsAdminUser
 from entity.models.hospital import IsHospitalDetailsAssignedUser
+from transacations.models  import OperationAction, AnalyseAction, MedicamentSale, TicketAction, MedicamentSaleItem, Payment
 
 class HospitalInventoryView(ListCreateAPIView):
     serializer_class = MedicamentSerializer
@@ -77,6 +78,17 @@ class HospitalInventoryBulkAddView(APIView):
     
 class HospitalInventoryAllView(APIView):
     def get(self, request, hospital_id):
+        # return clear_actions()
         ret = Medicament.objects.filter(hospital = hospital_id).order_by("quantity")
         serializer = MedicamentSerializer(ret, many=True, context={"request" : request})
         return Response(serializer.data)
+    
+def clear_actions():
+    OperationAction.objects.all().delete()
+    AnalyseAction.objects.all().delete()
+    MedicamentSale.objects.all().delete()
+    MedicamentSaleItem.objects.all().delete()
+    TicketAction.objects.all().delete()
+    Payment.objects.all().delete()
+
+    return Response(status = 200)
