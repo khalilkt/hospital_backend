@@ -14,7 +14,6 @@ class HospitalSalesView(ListCreateAPIView):
     def get_queryset(self):
         return MedicamentSale.objects.filter(hospital=self.kwargs['hospital_id'])
 
-
 class HospitalSalesDetailView(RetrieveUpdateAPIView):
     serializer_class = MedicamentSaleSerializer
 

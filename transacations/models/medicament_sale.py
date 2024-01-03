@@ -27,7 +27,7 @@ class MedicamentSaleSerializer(serializers.ModelSerializer):
         if len(value) == 0:
             raise serializers.ValidationError("Items cannot be empty")
         return value
-    
+
     def create(self, validated_data):
         with transaction.atomic():
             items = validated_data.pop('medicament_sale_items')

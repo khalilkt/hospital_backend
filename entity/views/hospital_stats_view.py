@@ -54,13 +54,15 @@ def get_queryset(action, hospital_id = None):
             ret = ret.filter(operation__hospital = hospital_id)
     elif action == "analyse":
         ret = AnalyseAction.objects
-        ret  = ret.annotate(revenue = F("price")* 
+        ret  = ret.annotate(revenue = Sum(
+            F("analyse_action_items__price")
+        ) * 
                               Case(
             When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
             When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
             When(insurance_number__isnull = True, then = Value(1.0),)))
         if hospital_id:
-            ret = ret.filter(analyse__hospital = hospital_id)
+            ret = ret.filter(hospital = hospital_id)
     elif action == "medicament":
         ret = MedicamentSale.objects
         if hospital_id:

@@ -13,7 +13,7 @@ class HospitalAnalysesView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
     
-    ordering = ['-created_at']
+    ordering = ['name']
     search_fields = ['name']
 
     def get_queryset(self):

@@ -83,12 +83,12 @@ class HospitalInventoryAllView(APIView):
         serializer = MedicamentSerializer(ret, many=True, context={"request" : request})
         return Response(serializer.data)
     
-def clear_actions():
-    OperationAction.objects.all().delete()
-    AnalyseAction.objects.all().delete()
-    MedicamentSale.objects.all().delete()
-    MedicamentSaleItem.objects.all().delete()
-    TicketAction.objects.all().delete()
-    Payment.objects.all().delete()
+# def clear_actions():
+#     OperationAction.objects.all().delete()
+#     AnalyseAction.objects.all().delete()
+#     MedicamentSale.objects.all().delete()
+#     MedicamentSaleItem.objects.all().delete()
+#     TicketAction.objects.all().delete()
+#     Payment.objects.all().delete()
 
-    return Response(status = 200)
+#     return Response(status = 200)

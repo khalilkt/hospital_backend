@@ -16,11 +16,11 @@ class HospitalAnalysesActionsView(ListCreateAPIView):
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
     ordering = ['-created_at']
-    search_fields = ["analyse__name", "patient", "insurance_number",]
+    search_fields = [ "patient", "insurance_number", "analyse_action_items__analyse__name"]
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
-        return AnalyseAction.objects.filter(analyse__hospital = hospital_id)
+        return AnalyseAction.objects.filter(hospital = hospital_id)
     
 class HospitalAnalysesActionsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AnalyseActionSerializer
@@ -30,6 +30,6 @@ class HospitalAnalysesActionsDetailView(RetrieveUpdateDestroyAPIView):
         hospital_id = self.kwargs['hospital_id']
         id = self.kwargs['pk']
         try:
-            return get_object_or_404(AnalyseAction, analyse__hospital = hospital_id, id = id)  
+            return get_object_or_404(AnalyseAction,hospital = hospital_id, id = id)  
         except AnalyseAction.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)

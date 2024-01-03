@@ -23,7 +23,7 @@ class InssuranceSerializer(serializers.Serializer):
 
 def def_query(hospital_id, year = None , month = None):
     operation_Q = OperationAction.objects.filter(insurance_number__isnull=False, operation__hospital= hospital_id)
-    analyse_Q = AnalyseAction.objects.filter(insurance_number__isnull=False,analyse__hospital= hospital_id)
+    analyse_Q = AnalyseAction.objects.filter(insurance_number__isnull=False,hospital= hospital_id)
     medicament_Q = MedicamentSale.objects.filter(insurance_number__isnull=False, hospital= hospital_id)
     ticket_Q = TicketAction.objects.filter(insurance_number__isnull=False, ticket__hospital= hospital_id)
     
@@ -40,7 +40,9 @@ def def_query(hospital_id, year = None , month = None):
     
     ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("price")
      ).union(
-        analyse_Q.annotate(name = F('analyse__name'), iid = Concat(Value("an_"), F("id"), output_field=CharField()), revenue=F("price"), )
+        analyse_Q.annotate(name = Value("analyse"), iid = Concat(Value("an_"), F("id"), output_field=CharField()), revenue=   Sum(
+            F("analyse_action_items__price")
+        ), )
     ).union(
         medicament_Q.annotate( name = Value("Vente de medicament", output_field=CharField()),iid = Concat(Value("sl_"), F("id"), output_field=CharField()), revenue = Sum(F("medicament_sale_items__sale_price") * F("medicament_sale_items__quantity"))
     
