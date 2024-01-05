@@ -1,5 +1,6 @@
 import datetime
 from rest_framework.views import APIView
+from maur_hopitaux.pagination import MPagePagination
 # from entity.models.subs import SubscriptionActionß
 from transacations.models import TicketAction, TicketActionSerializer
 from entity.models import Hospital
@@ -26,7 +27,7 @@ class HospitalTicketsActionsView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
-    
+
 
     ordering = ['-created_at']
     search_fields = ["ticket__name", "patient", "insurance_number",]
@@ -41,7 +42,17 @@ class HospitalTicketsActionsView(ListCreateAPIView):
         ret = get_queryset_by_date(ret, year, month, day)
         return ret
 
+    def paginate_queryset(self, queryset):
+        params = self.request.query_params 
+        all = params.get("all", None)
+        if all == "true":
+            super().pagination_class.page_size = 1000
+        else:
+            super().pagination_class.page_size = 10
+        return super().paginate_queryset(queryset)
+
     def get_paginated_response(self, data):
+        
         ret =  super().get_paginated_response(data)
         ret.data["total"] = self.get_queryset().aggregate(total = Sum("payed_price"))["total"]
         return ret

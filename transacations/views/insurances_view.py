@@ -11,8 +11,6 @@ from rest_framework.views import APIView
 from django.db.models import When, Case, FloatField , F, Q, ExpressionWrapper
 from rest_framework.permissions import IsAuthenticated
 
-
-
 class InssuranceSerializer(serializers.Serializer):
     name = serializers.CharField()
     insurance_number = serializers.CharField()

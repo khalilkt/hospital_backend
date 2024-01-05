@@ -18,12 +18,18 @@ class Hospital(models.Model):
     specialization = models.CharField(max_length=255, null=True, blank=True)
     bank_account = models.CharField(max_length=255) 
 
+class StaffSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+
+
 class HospitalSerializer(serializers.ModelSerializer):
     # staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='staff_members')
     tickets = TicketSerializer(many=True, read_only=True)
     staff = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name', source='staff_members')
     has_subscription = serializers.SerializerMethodField()
     stock_alerts = serializers.SerializerMethodField()
+    staff_data = StaffSerializer(many=True, read_only=True, source='staff_members')
 
     def get_stock_alerts(self, obj):
         ret = obj.medicament.filter(quantity__lte = 10)
