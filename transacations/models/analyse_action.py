@@ -16,7 +16,7 @@ class AnalyseActionItem(models.Model):
     parent = models.ForeignKey('AnalyseAction', on_delete=models.CASCADE, related_name='analyse_action_items')
     analyse = models.ForeignKey('entity.Analyses', on_delete=models.CASCADE, related_name='analyse_actions')
     # price = models.FloatField() 
-    payed_price = models.DecimalField(max_digits=10, decimal_places=2, default= 999)
+    payed_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 class AnalyseActionItemSerializer(serializers.ModelSerializer):
     analyse_name = serializers.CharField(source='analyse.name', read_only=True) 

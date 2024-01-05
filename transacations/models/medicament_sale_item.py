@@ -6,7 +6,7 @@ class MedicamentSaleItem(models.Model):
     medicament = models.ForeignKey('entity.Medicament', on_delete=models.CASCADE, related_name='sales')
     quantity = models.PositiveIntegerField()
     # sale_price = models.FloatField()
-    payed_price = models.DecimalField(max_digits=10, decimal_places=2, default= 999)
+    payed_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class MedicamentSaleItemSerializer(serializers.ModelSerializer):
