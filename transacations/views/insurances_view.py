@@ -20,6 +20,7 @@ class InssuranceSerializer(serializers.Serializer):
     revenue = serializers.IntegerField()
     created_at = serializers.DateTimeField()
     iid  = serializers.CharField() 
+    normal_price = serializers.IntegerField()
 
 def def_query(hospital_id, year = None , month = None):
     operation_Q = OperationAction.objects.filter(insurance_number__isnull=False, operation__hospital= hospital_id)
@@ -38,18 +39,20 @@ def def_query(hospital_id, year = None , month = None):
         medicament_Q = medicament_Q.filter(created_at__month = month)
         ticket_Q = ticket_Q.filter(created_at__month = month)
     
-    ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("payed_price")
+    ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("payed_price"), normal_price = Coalesce(F("operation__insurance_price"), F("operation__price"))).union(
      ).union(
         analyse_Q.annotate(name = Value("analyse"), iid = Concat(Value("an_"), F("id"), output_field=CharField()), revenue=   Sum(
             F("analyse_action_items__payed_price")
-        ), )
+        ), normal_price = Sum(Coalesce(F("analyse_action_items__analyse__insurance_price"), F("analyse_action_items__analyse__price"))) )
     ).union(
-        medicament_Q.annotate( name = Value("Vente de medicament", output_field=CharField()),iid = Concat(Value("sl_"), F("id"), output_field=CharField()), revenue = Sum(F("medicament_sale_items__payed_price") )
+        medicament_Q.annotate( name = Value("Vente de medicament", output_field=CharField()),iid = Concat(Value("sl_"), F("id"), output_field=CharField()), revenue = Sum(F("medicament_sale_items__payed_price")),
+                              normal_price = Sum(F("medicament_sale_items__medicament__price") * F("medicament_sale_items__quantity"))
+                              
     
     )
     ).union(
-        ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("payed_price") )
-    ).values('name', 'created_at', 'insurance_number', "is_taazour_insurance","iid","revenue" , "is_taazour_insurance").order_by('-created_at')
+        ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("payed_price") , normal_price = Coalesce(F("ticket__insurance_price"),F("ticket__price")) * Coalesce( F("duration"), Value(1)))
+    ).values('name', 'created_at', 'insurance_number', "is_taazour_insurance","iid","revenue" , "is_taazour_insurance", "normal_price").order_by('-created_at')
     return ret
 
 class TotalInsuranceView(APIView):
