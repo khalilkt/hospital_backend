@@ -6,12 +6,13 @@ from rest_framework import serializers
 class OperationAction(models.Model):
     operation = models.ForeignKey('entity.Operations', on_delete=models.CASCADE, related_name='actions')
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
-    is_taazour_insurance = models.BooleanField()
+    is_taazour_insurance = models.BooleanField() 
 
     # planned_date = models.DateTimeField()
     patient = models.CharField(max_length=255)
     duration = models.PositiveIntegerField()
-    price = models.PositiveIntegerField()
+    # price = models.PositiveIntegerField()
+    payed_price = models.DecimalField(max_digits=10, decimal_places=2)
     doctor = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

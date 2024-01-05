@@ -99,9 +99,11 @@ class HopsitalNotPayedView(APIView):
             date = date + datetime.timedelta(days = 7 - date.weekday())
         # date = date + datetime.timedelta(days = 7)
         ret = []
+        if date == hospital.created_at.date():
+            date = date + datetime.timedelta(days = 7)
         while date <= datetime.datetime.now().date():
             start_date = date - datetime.timedelta(days = 7)
-            if start_date < hospital.created_at.date():
+            if start_date <= hospital.created_at.date():
                 start_date = hospital.created_at.date()
             week_payments = payments.filter(payed_for = date)
             # end date is exluded

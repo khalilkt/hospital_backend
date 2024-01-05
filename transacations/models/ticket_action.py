@@ -16,8 +16,9 @@ class TicketAction(models.Model):
     is_taazour_insurance = models.BooleanField()
     patient = models.CharField(max_length=255, null=True, blank=True) 
     client = models.ForeignKey('entity.Client', on_delete=models.CASCADE, related_name='ticket_actions', null=True, blank=True)
+    payed_price = models.DecimalField(max_digits=10, decimal_places=2, default= 999)
 
-    price = models.PositiveIntegerField()
+    # price = models.PositiveIntegerField()
     payload = models.JSONField(default=dict, blank=True) 
 
 

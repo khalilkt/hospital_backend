@@ -9,20 +9,33 @@ from rest_framework import filters
 from rest_framework.permissions import  IsAuthenticated, IsAdminUser
 from entity.models.hospital import IsHospitalDetailsAssignedUser
 from rest_framework import viewsets
+from django.db.models import F, Value, CharField, IntegerField, Q, Sum, Count, When , Case, BooleanField, ExpressionWrapper, DateField, DateTimeField, DurationField
+
+from transacations.views.utilis import get_queryset_by_date
 
 class HospitalOperationActionsView(ListCreateAPIView):
     serializer_class = OperationActionSerializer
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
-
-
     ordering = ['-created_at']
     search_fields = ["operation__name", "patient", "insurance_number",]
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
-        return OperationAction.objects.filter(operation__hospital = hospital_id)
+        params = self.request.query_params
+        year = params.get("year", None)
+        month = params.get("month", None)
+        day = params.get("day", None)  
+        ret =  OperationAction.objects.filter(operation__hospital = hospital_id)
+        ret = get_queryset_by_date(ret, year, month, day)
+        return ret
+   
+    def get_paginated_response(self, data):
+        ret =  super().get_paginated_response(data)
+        ret.data["total"] = self.get_queryset().aggregate(total = Sum("payed_price"))["total"]
+        return ret
+    
     
 class HospitalOperationActionsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = OperationActionSerializer

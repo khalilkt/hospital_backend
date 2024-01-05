@@ -5,6 +5,7 @@ from rest_framework import serializers
 class Ticket(models.Model):
     name = models.CharField(max_length=255)
     price = models.FloatField() #if has_duration is true then price is for 1 hour
+    insurance_price = models.FloatField(null=True, blank=True)
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='tickets')
     created_at = models.DateTimeField(auto_now_add=True)
     # 1 = 30min, 2 = hours, 3 = days, 4 = months, 5 = years

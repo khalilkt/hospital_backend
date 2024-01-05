@@ -15,21 +15,21 @@ class AnalyseAction(models.Model):
 class AnalyseActionItem(models.Model):
     parent = models.ForeignKey('AnalyseAction', on_delete=models.CASCADE, related_name='analyse_action_items')
     analyse = models.ForeignKey('entity.Analyses', on_delete=models.CASCADE, related_name='analyse_actions')
-    price = models.FloatField() 
-
+    # price = models.FloatField() 
+    payed_price = models.DecimalField(max_digits=10, decimal_places=2, default= 999)
 
 class AnalyseActionItemSerializer(serializers.ModelSerializer):
     analyse_name = serializers.CharField(source='analyse.name', read_only=True) 
     class Meta:
         model = AnalyseActionItem
-        fields = [ 'analyse', 'price', 'analyse_name']
+        fields = [ 'analyse', 'analyse_name', "payed_price"]
 
 class AnalyseActionSerializer(serializers.ModelSerializer):
     staff_name = serializers.CharField(source='created_by.name', read_only=True)
     items = AnalyseActionItemSerializer(many=True, read_only=False, source = 'analyse_action_items')
     total = serializers.SerializerMethodField() 
     def get_total(self, obj):
-        return sum([item['price'] for item in obj.analyse_action_items.values('price')])
+        return sum([item['payed_price'] for item in obj.analyse_action_items.values('payed_price')])
     
     def __init__(self, instance=None, data=None,context = None, **kwargs):
         if context and "request" in context and  context["request"].method == "POST": 

@@ -4,6 +4,7 @@ from rest_framework import serializers
 class Medicament(models.Model):
     name = models.CharField(max_length=255)
     price = models.FloatField()
+    
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='medicament')
     quantity = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)

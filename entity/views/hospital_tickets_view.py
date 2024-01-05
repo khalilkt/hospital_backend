@@ -15,7 +15,7 @@ class HospitalTicketView(ListCreateAPIView):
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
     ordering = ['-created_at']
-    search_fields = ['name', 'price',]
+    search_fields = ['name', 'payed_price',]
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
         return Ticket.objects.filter(hospital = hospital_id)   

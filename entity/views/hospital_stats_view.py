@@ -36,50 +36,40 @@ class detailStatsSerializer(serializers.Serializer):
     medicaments_revenue = serializers.FloatField()
     tickets_revenue = serializers.FloatField()
     total_revenue = serializers.FloatField()
+
+#  * 
+#         Case(
+#             When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
+#             When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
+#             When(insurance_number__isnull = True, then = Value(1.0)),
+    #  default = Value(1),
+    #     output_field = IntegerField()
+    # )
     
 def get_queryset(action, hospital_id = None):
     ret  = None
     if action== "operation" : 
         ret = OperationAction.objects
        
-        ret = ret.annotate(revenue = F("price") * 
-        Case(
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
-            When(insurance_number__isnull = True, then = Value(1.0)),
-        default = Value(1),
-        output_field = IntegerField()
-    ))
+        ret = ret.annotate(revenue = F("payed_price"))
+       
         if hospital_id: 
             ret = ret.filter(operation__hospital = hospital_id)
     elif action == "analyse":
         ret = AnalyseAction.objects
         ret  = ret.annotate(revenue = Sum(
-            F("analyse_action_items__price")
-        ) * 
-                              Case(
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
-            When(insurance_number__isnull = True, then = Value(1.0),)))
+            F("analyse_action_items__payed_price")
+        ) )
         if hospital_id:
             ret = ret.filter(hospital = hospital_id)
     elif action == "medicament":
         ret = MedicamentSale.objects
         if hospital_id:
             ret = ret.filter(hospital = hospital_id)
-        ret = ret.annotate(revenue = Sum(F("medicament_sale_items__sale_price") * F("medicament_sale_items__quantity"))
-                           *   Case(
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
-            When(insurance_number__isnull = True, then = Value(1.0)),))
+        ret = ret.annotate(revenue = Sum(F("medicament_sale_items__payed_price")))
     elif action == "ticket":
         ret = TicketAction.objects
-        ret = ret.annotate(revenue = F("price") * Coalesce(F("duration"), Value(1))* 
-                             Case(
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
-            When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
-            When(insurance_number__isnull = True, then = Value(1.0)),
-                             ))
+        ret = ret.annotate(revenue = F("payed_price"))
         if hospital_id:
             ret = ret.filter(ticket__hospital = hospital_id)
     

@@ -17,6 +17,9 @@ class MedicamentSale(models.Model):
 
 class MedicamentSaleSerializer(serializers.ModelSerializer):
     items = MedicamentSaleItemSerializer(many=True, read_only=False, source = 'medicament_sale_items')
+
+    staff_name = serializers.CharField(source='created_by.name', read_only=True)
+    
     def __init__(self, instance=None, data=None,context = None, **kwargs):
         if context and "request" in context and  context["request"].method == "POST": 
             current_user = context['request'].user

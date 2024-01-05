@@ -17,6 +17,7 @@ from django.db.models import JSONField, Func
 
 
 from transacations.models.ticket_action import SubscriberSerializer
+from transacations.views.utilis import get_queryset_by_date
 # import Now()
 
 
@@ -25,12 +26,25 @@ class HospitalTicketsActionsView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
+    
+
     ordering = ['-created_at']
     search_fields = ["ticket__name", "patient", "insurance_number",]
     
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
-        return TicketAction.objects.filter(ticket__hospital = hospital_id)   
+        params = self.request.query_params
+        year = params.get("year", None)
+        month = params.get("month", None)
+        day = params.get("day", None)  
+        ret =  TicketAction.objects.filter(ticket__hospital = hospital_id)   
+        ret = get_queryset_by_date(ret, year, month, day)
+        return ret
+
+    def get_paginated_response(self, data):
+        ret =  super().get_paginated_response(data)
+        ret.data["total"] = self.get_queryset().aggregate(total = Sum("payed_price"))["total"]
+        return ret
 
 class HospitalTicketActionsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = TicketActionSerializer
