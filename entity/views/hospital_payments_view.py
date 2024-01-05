@@ -56,7 +56,14 @@ class HospitalPaymentsView(ListCreateAPIView):
 
     ordering = ['-created_at']
     search_fields = ['hospital__name', "account", "quittance_number","amount" ]
-    
+    def paginate_queryset(self, queryset):
+        params = self.request.query_params 
+        all = params.get("all", None)
+        if all == "true":
+            super().pagination_class.page_size = 1000
+        else:
+            super().pagination_class.page_size = 10
+        return super().paginate_queryset(queryset)
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
         for_pharmacy = self.request.query_params.get('for_pharmacy', False)

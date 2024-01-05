@@ -28,6 +28,9 @@ class HospitalAnalysesActionsView(ListCreateAPIView):
         month = params.get("month", None)
         day = params.get("day", None)   
         ret = AnalyseAction.objects.filter(hospital = hospital_id)
+        user_id = params.get("user", None)
+        if user_id:
+            ret = ret.filter(created_by = user_id)
         ret = get_queryset_by_date(ret, year, month, day)
         return ret
     

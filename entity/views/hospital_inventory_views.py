@@ -16,6 +16,15 @@ class HospitalInventoryView(ListCreateAPIView):
     ordering = ['id']
     search_fields = ['name', "price"]
 
+    def paginate_queryset(self, queryset):
+        params = self.request.query_params 
+        all = params.get("all", None)
+        if all == "true":
+            super().pagination_class.page_size = 1000
+        else:
+            super().pagination_class.page_size = 10
+        return super().paginate_queryset(queryset)
+
     def get_serializer_context(self):
         hospital_id = self.kwargs['hospital_id']    
         context =  super().get_serializer_context()

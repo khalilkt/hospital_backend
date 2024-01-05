@@ -13,8 +13,19 @@ class HospitalOperationsView(ListCreateAPIView):
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
 
+    
     ordering = ['-created_at']
     search_fields = ['name']
+
+    def paginate_queryset(self, queryset):
+        params = self.request.query_params 
+        all = params.get("all", None)
+        if all == "true":
+            super().pagination_class.page_size = 1000
+        else:
+            super().pagination_class.page_size = 10
+        return super().paginate_queryset(queryset)
+    
     def get_queryset(self):
         hospital_id = self.kwargs['hospital_id']
         return Operations.objects.filter(hospital = hospital_id)
