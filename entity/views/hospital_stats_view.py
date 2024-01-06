@@ -118,7 +118,7 @@ def get_range_date_revenue(hospital_id, sDate, eDate, include_hospital = False, 
         range_revenue += medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     return range_revenue
 
-def get_range_revenue( hospital_id, year , month):
+def get_range_revenue( hospital_id, year , month, ):
     operations = get_stats_queryset_bymonthyear("operation", hospital_id, year, month,)
     analyses = get_stats_queryset_bymonthyear("analyse", hospital_id, year, month,)
     medicaments = get_stats_queryset_bymonthyear("medicament", hospital_id, year, month,)
@@ -234,6 +234,66 @@ class AdminSalesStatsDetailView(APIView):
             return Response({"error": "year and month are required"}, status=400)
         sales_details = get_sales_detail(None, year, month, day) 
         return Response(detailStatsSerializer(sales_details).data)
+    
+class AdminHospitalRenenueStatusView(APIView):
+    def get(self, request,):
+
+        params = request.query_params
+        year = params.get("year", None)
+        month = params.get("month", None)
+        day = params.get("day", None)   
+        if not year or not month : 
+            return Response({"error": "year and month are required"}, status=400)
+        hospitals = Hospital.objects.all()
+        ret = {}
+        for hospital in hospitals:
+            name = hospital.name
+            revenue = get_sales_detail(hospital.id, year, month, day)
+            ret[name] = revenue["total_revenue"] - revenue["medicaments_revenue"]
+            if hospital.has_pharmacy:
+                ret[name + " (pharmacy)"] = revenue["medicaments_revenue"]
+        return Response(ret)
+
+            #  "operations_count": operations_count,
+            # "analyses_count": analyses_count,
+            # "medicaments_count": medicaments_count,
+            # "tickets_count": tickets_count,
+            # "operations_revenue": operations_revenue,
+            # "analyses_revenue": analyses_revenue,
+            # "medicaments_revenue": medicaments_revenue,
+            # "tickets_revenue": tickets_revenue,
+            # "total_revenue" : total_revenue,
+        # hospital_id = params.get("hospital_id", None)
+        # if hospital_id:
+        #     hospital = Hospital.objects.get(id = hospital_id)
+        #     if not hospital:
+        #         return Response({"error": "hospital not found"}, status=400)
+        # else:
+        #     hospital = None
+        # sDate = params.get("sDate", None)
+        # eDate = params.get("eDate", None)
+        # if sDate and eDate:
+        #     sDate = datetime.datetime.strptime(sDate, "%Y-%m-%d").date()
+        #     eDate = datetime.datetime.strptime(eDate, "%Y-%m-%d").date()
+        #     if sDate > eDate:
+        #         return Response({"error": "sDate must be less than eDate"}, status=400)
+        # else:
+        #     sDate = None
+        #     eDate = None
+        # include_hospital = params.get("include_hospital", None)
+        # include_pharmacy = params.get("include_pharmacy", None)
+        # if include_hospital == "true":
+        #     include_hospital = True
+        # else:
+        #     include_hospital = False
+        # if include_pharmacy == "true":
+        #     include_pharmacy = True
+        # else:
+        #     include_pharmacy = False
+        # if not include_hospital and not include_pharmacy:
+        #     return Response({"error": "include_hospital or include_pharmacy must be true"}, status=400)
+        # range_revenue = get_range_date_revenue(hospital_id, sDate, eDate, include_hospital, include_pharmacy)
+        # return Response({"range_revenue": range_revenue})
         
         
 class AdminHospitalStatsView(APIView):

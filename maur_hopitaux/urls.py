@@ -20,7 +20,7 @@ from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInvento
 from entity.views import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet, HopsitalNotPayedView
 from transacations.views import HospitalTicketsActionsView, HospitalTicketActionsDetailView, HospitalAnalysesActionsView, HospitalAnalysesActionsDetailView, HospitalOperationActionsView, HospitalOperationActionsDetailView, HospitalSubscribersView
 from auth_app.views import LoginTokenView, LoginView , RegisterView
-from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView
+from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView, AdminHospitalRenenueStatusView
 from transacations.views.insurances_view import InsuranceViews, TotalInsuranceView
 from auth_app.views import UsersViewSet
 from entity.views import ClientsView, SubscriptionActionView
@@ -76,6 +76,7 @@ urlpatterns = [
     path('hospital/<int:hospital_id>/stats/sales', HospitalSalesStatsDetailView.as_view(), name='hospital_sales_stats'),
     path('stats/', AdminHospitalStatsView.as_view(), name='admin_stats'),
     path('stats/sales', AdminSalesStatsDetailView.as_view(), name='admin_sales_stats'),
+    path('hospital_renenue_status', AdminHospitalRenenueStatusView.as_view(), name='admin_hospital_renenue_status'),
 
     path('login/', LoginView.as_view(), name='login'), 
     path('login_token/', LoginTokenView.as_view(), name='login_token'),
