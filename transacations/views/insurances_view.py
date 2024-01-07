@@ -84,5 +84,5 @@ class InsuranceViews(ListAPIView):
     def get_paginated_response(self, data):
         query = self.get_queryset()
         ret = super().get_paginated_response(data)
-        ret.data["total"] = query.aggregate(total_revenue =ExpressionWrapper( Sum(ExpressionWrapper(F("revenue") - F("normal_price"))) , output_field=FloatField(), ))["total_revenue"]
+        ret.data["total"] = query.aggregate(total_revenue =ExpressionWrapper( Sum(ExpressionWrapper(F("revenue") - F("normal_price"), output_field=FloatField())) , output_field=FloatField(), ))["total_revenue"]
         return ret
