@@ -54,15 +54,15 @@ def def_query(hospital_id, insurances : str, year = None , month = None):
     ).values('name', 'created_at', 'insurance_number', "insurance_name","iid","revenue" , "normal_price").order_by('-created_at')
     return ret
 
-class TotalInsuranceView(APIView):
-    def get(self, request, hospital_id):
-        year = self.request.query_params.get('year', None)
-        month = self.request.query_params.get('month', None)
-        insurances = self.request.query_params.get('insurances', "")
-        ret = def_query(hospital_id, insurances, year, month)
+# class TotalInsuranceView(APIView):
+#     def get(self, request, hospital_id):
+#         year = self.request.query_params.get('year', None)
+#         month = self.request.query_params.get('month', None)
+#         insurances = self.request.query_params.get('insurances', "")
+#         ret = def_query(hospital_id, insurances, year, month)
 
-        ret = ret.aggregate(total_revenue =ExpressionWrapper( Sum("revenue") , output_field=FloatField()))
-        return Response(ret)
+#         ret = ret.aggregate(total_revenue =ExpressionWrapper( Sum("revenue") , output_field=FloatField()))
+#         return Response(ret)
 
 class InsuranceViews(ListAPIView):
     serializer_class = InssuranceSerializer
@@ -77,5 +77,12 @@ class InsuranceViews(ListAPIView):
         insurances = self.request.query_params.get('insurances', "")
 
         ret = def_query(hospital_id, insurances, year, month)
+
        
         return ret 
+
+    def get_paginated_response(self, data):
+        query = self.get_queryset()
+        ret = super().get_paginated_response(data)
+        ret.data["total"] = query.aggregate(total_revenue =ExpressionWrapper( Sum("revenue") , output_field=FloatField()))["total_revenue"]
+        return ret
