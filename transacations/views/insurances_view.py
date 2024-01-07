@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 class InssuranceSerializer(serializers.Serializer):
     name = serializers.CharField()
     insurance_number = serializers.CharField()
-    insurance_name = serializers.BooleanField()
+    insurance_name = serializers.CharField()
     revenue = serializers.IntegerField()
     created_at = serializers.DateTimeField()
     iid  = serializers.CharField() 
