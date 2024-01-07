@@ -18,8 +18,8 @@ class PaymentSerializer(serializers.ModelSerializer):
     start_date = serializers.DateField(read_only=True)
 
     def validate_payed_for(self, value):
-        if value.weekday() != 0:
-            raise serializers.ValidationError("Payment date should be a monday")
+        if value.weekday() != 1:
+            raise serializers.ValidationError("Payment date should be a tuesday")
         return value    
     
     

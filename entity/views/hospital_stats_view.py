@@ -37,15 +37,7 @@ class detailStatsSerializer(serializers.Serializer):
     tickets_revenue = serializers.FloatField()
     total_revenue = serializers.FloatField()
 
-#  * 
-#         Case(
-#             When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = True), then = Value(0.0)),
-#             When(Q(insurance_number__isnull = False) & Q(is_taazour_insurance = False), then = Value(0.1)),
-#             When(insurance_number__isnull = True, then = Value(1.0)),
-    #  default = Value(1),
-    #     output_field = IntegerField()
-    # )
-    
+
 def get_queryset(action, hospital_id = None):
     ret  = None
     if action== "operation" : 

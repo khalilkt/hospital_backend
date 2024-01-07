@@ -101,10 +101,11 @@ class HopsitalNotPayedView(APIView):
         hospital = get_object_or_404(Hospital, id = hospital_id)
         payments = Payment.objects.filter(hospital = hospital_id, for_pharmacy = for_pharmacy)
         date = hospital.created_at.date()
-        date = date
-        if date.weekday() != 0:
-            date = date + datetime.timedelta(days = 7 - date.weekday())
-        # date = date + datetime.timedelta(days = 7)
+        # every tuesday
+        while date.weekday() != 1:
+            date = date + datetime.timedelta(days = 1)
+        
+            
         ret = []
         if date == hospital.created_at.date():
             date = date + datetime.timedelta(days = 7)

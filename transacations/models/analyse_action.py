@@ -3,10 +3,11 @@ from django.db import models
 from django.conf import settings
 from rest_framework import serializers
 from django.db import transaction
+from transacations.models.constants import INSURANCE_CHOICES
 
 class AnalyseAction(models.Model):
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
-    is_taazour_insurance = models.BooleanField()
+    insurance_name = models.CharField(max_length=255, null=True, blank=True, choices=INSURANCE_CHOICES)
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE)
     patient  = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)

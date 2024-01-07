@@ -1,12 +1,15 @@
 
 from django.db import models
 from django.conf import settings
-from rest_framework import serializers 
+from rest_framework import serializers
+
+from transacations.models.constants import INSURANCE_CHOICES 
 
 class OperationAction(models.Model):
     operation = models.ForeignKey('entity.Operations', on_delete=models.CASCADE, related_name='actions')
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
-    is_taazour_insurance = models.BooleanField() 
+    insurance_name = models.CharField(max_length=255, null=True, blank=True, choices=INSURANCE_CHOICES)
+
 
     # planned_date = models.DateTimeField()
     patient = models.CharField(max_length=255)

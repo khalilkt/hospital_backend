@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 class InssuranceSerializer(serializers.Serializer):
     name = serializers.CharField()
     insurance_number = serializers.CharField()
-    is_taazour_insurance = serializers.BooleanField()
+    insurance_name = serializers.BooleanField()
     revenue = serializers.IntegerField()
     created_at = serializers.DateTimeField()
     iid  = serializers.CharField() 
@@ -50,7 +50,7 @@ def def_query(hospital_id, year = None , month = None):
     )
     ).union(
         ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("payed_price") , normal_price = Coalesce(F("ticket__insurance_price"),F("ticket__price")) * Coalesce( F("duration"), Value(1)))
-    ).values('name', 'created_at', 'insurance_number', "is_taazour_insurance","iid","revenue" , "is_taazour_insurance", "normal_price").order_by('-created_at')
+    ).values('name', 'created_at', 'insurance_number', "insurance_name","iid","revenue" , "normal_price").order_by('-created_at')
     return ret
 
 class TotalInsuranceView(APIView):

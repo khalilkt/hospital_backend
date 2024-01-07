@@ -1,6 +1,7 @@
 from django.db import models
 from rest_framework import serializers
 from entity.models.medicament import Medicament
+from transacations.models.constants import INSURANCE_CHOICES
 from transacations.models.medicament_sale_item import MedicamentSaleItemSerializer, MedicamentSaleItem
 from django.db import transaction
 from django.conf import settings
@@ -11,7 +12,8 @@ class MedicamentSale(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='medicaments_actions', on_delete=models.SET_NULL, null=True, blank=True)
     insurance_number = models.CharField(max_length=255, null=True, blank=True) 
-    is_taazour_insurance = models.BooleanField()
+    insurance_name = models.CharField(max_length=255, null=True, blank=True, choices=INSURANCE_CHOICES)
+
 
     patient = models.CharField(max_length=255)
 

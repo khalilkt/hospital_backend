@@ -5,6 +5,7 @@ from rest_framework.fields import empty
 import datetime, time
 from django.utils import timezone
 from entity.models.hospital_tickets import TicketSerializer, Ticket
+from transacations.models.constants import INSURANCE_CHOICES
 # from entity.models.subs import SubscriptionAction
 
 class TicketAction(models.Model):
@@ -13,7 +14,8 @@ class TicketAction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ticket_actions', on_delete=models.SET_NULL, null=True, blank=True)
     insurance_number = models.CharField(max_length=255, null=True, blank=True)
-    is_taazour_insurance = models.BooleanField()
+    insurance_name = models.CharField(max_length=255, null=True, blank=True, choices=INSURANCE_CHOICES)
+
     patient = models.CharField(max_length=255, null=True, blank=True) 
     client = models.ForeignKey('entity.Client', on_delete=models.CASCADE, related_name='ticket_actions', null=True, blank=True)
     payed_price = models.DecimalField(max_digits=10, decimal_places=2)
