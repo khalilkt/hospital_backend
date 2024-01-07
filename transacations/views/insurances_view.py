@@ -20,12 +20,13 @@ class InssuranceSerializer(serializers.Serializer):
     iid  = serializers.CharField() 
     normal_price = serializers.IntegerField()
 
-def def_query(hospital_id, year = None , month = None):
-    operation_Q = OperationAction.objects.filter(insurance_number__isnull=False, operation__hospital= hospital_id)
-    analyse_Q = AnalyseAction.objects.filter(insurance_number__isnull=False,hospital= hospital_id)
-    medicament_Q = MedicamentSale.objects.filter(insurance_number__isnull=False, hospital= hospital_id)
-    ticket_Q = TicketAction.objects.filter(insurance_number__isnull=False, ticket__hospital= hospital_id)
-    
+def def_query(hospital_id, insurances : str, year = None , month = None):
+
+    insurances = insurances.upper().replace(" ", "").replace("[", "").replace("]" , "").split(",")
+    operation_Q = OperationAction.objects.filter(insurance_number__isnull=False, insurance_name__in = insurances,   operation__hospital= hospital_id)
+    analyse_Q = AnalyseAction.objects.filter(insurance_number__isnull=False,insurance_name__in = insurances,hospital= hospital_id)
+    medicament_Q = MedicamentSale.objects.filter(insurance_number__isnull=False,insurance_name__in = insurances, hospital= hospital_id)
+    ticket_Q = TicketAction.objects.filter(insurance_number__isnull=False,insurance_name__in = insurances, ticket__hospital= hospital_id)
     if year:
         operation_Q = operation_Q.filter( created_at__year = year)
         analyse_Q = analyse_Q.filter(created_at__year = year)
@@ -57,7 +58,8 @@ class TotalInsuranceView(APIView):
     def get(self, request, hospital_id):
         year = self.request.query_params.get('year', None)
         month = self.request.query_params.get('month', None)
-        ret = def_query(hospital_id, year, month)
+        insurances = self.request.query_params.get('insurances', "")
+        ret = def_query(hospital_id, insurances, year, month)
 
         ret = ret.aggregate(total_revenue =ExpressionWrapper( Sum("revenue") , output_field=FloatField()))
         return Response(ret)
@@ -72,6 +74,8 @@ class InsuranceViews(ListAPIView):
         hospital_id = self.kwargs['hospital_id']
         month = self.request.query_params.get('month', None)
         year = self.request.query_params.get('year', None)
-        ret = def_query(hospital_id, year, month)
+        insurances = self.request.query_params.get('insurances', "")
+
+        ret = def_query(hospital_id, insurances, year, month)
        
         return ret 

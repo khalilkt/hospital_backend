@@ -17,6 +17,7 @@ class Hospital(models.Model):
     show_in_subs = models.BooleanField(default=False)
     specialization = models.CharField(max_length=255, null=True, blank=True)
     bank_account = models.CharField(max_length=255) 
+    ticket_name  = models.CharField(max_length=255, null=True, blank=True)
 
 class StaffSerializer(serializers.Serializer):
     id = serializers.IntegerField()
