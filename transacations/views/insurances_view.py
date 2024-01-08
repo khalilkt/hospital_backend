@@ -80,6 +80,14 @@ class InsuranceViews(ListAPIView):
 
        
         return ret 
+    def paginate_queryset(self, queryset):
+        params = self.request.query_params 
+        all = params.get("all", None)
+        if all == "true":
+            super().pagination_class.page_size = 1000
+        else:
+            super().pagination_class.page_size = 10
+        return super().paginate_queryset(queryset)
 
     def get_paginated_response(self, data):
         query = self.get_queryset()
