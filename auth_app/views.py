@@ -20,7 +20,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 def get_response(user : User, token : Token):
     hospitals = []
-    if not user.is_admin :
+    if not user.is_admin and not user.is_superuser:
         hospitals.append(HospitalSerializer(user.assigned_hospital).data)
     else:
         hospitals = HospitalSerializer(Hospital.objects.all(), many=True).data

@@ -3,6 +3,7 @@ from .hospital_inventory_views import HospitalInventoryView, HospitalInventoryDe
 from .hospital_sales_view import HospitalSalesView, HospitalSalesDetailView
 from .hospital_operations_view import HospitalOperationsDetailView, HospitalOperationsView
 from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetailView
+from .hospital_municipal_views import *
 
 from .hospital_stats_view import HospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView , AdminHospitalRenenueStatusView
 from .hospital_tickets_view import HospitalTicketView, HospitalTicketsDetailView
