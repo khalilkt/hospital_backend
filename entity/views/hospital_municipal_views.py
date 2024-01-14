@@ -9,6 +9,10 @@ from rest_framework.permissions import  IsAuthenticated, IsAdminUser
 from entity.models.hospital import HopsitalPermission , IsHospitalDetailsAssignedUser
 from entity.models.municipal_tax import Refund, RefundSerializer
 from transacations.views.utilis import get_queryset_by_date
+from django.db.models import Sum
+from django.db.models.functions import Cast
+from django.db import models
+
 
 class HospitalDirectorsView(ListCreateAPIView):
     serializer_class = DirectorSerializer
@@ -72,6 +76,17 @@ class MunicipalRefundView(ListCreateAPIView):
         if user_id:
             ret = ret.filter(created_by = user_id)
         ret = get_queryset_by_date(ret, year, month, day)
+        return ret
+    
+    def get_paginated_response(self, data):
+        ret = super().get_paginated_response(data)
+        total =  self.get_queryset().aggregate(
+            total_category_1 = Sum("amount__category_1", output_field=models.IntegerField()),
+            total_category_2 = Sum("amount__category_2", output_field=models.IntegerField()),
+            total_category_3 = Sum("amount__category_3", output_field=models.IntegerField())
+            
+            )
+        ret.data["total"]= total
         return ret
 
 class MunicipalRefundDetailView(RetrieveUpdateDestroyAPIView):
