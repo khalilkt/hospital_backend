@@ -45,9 +45,10 @@ class detailStatsSerializer(serializers.Serializer):
     alimentations_revenue = serializers.FloatField()
     total_revenue = serializers.FloatField()
 
-
-def get_queryset(action, hospital_id = None):
+# if for refund action could be equal to refunds__category_1 or refunds__category_2 or refunds__category_3
+def get_queryset(action : str, hospital_id = None,):
     ret  = None
+
     if action== "operation" : 
         ret = OperationAction.objects
        
@@ -109,10 +110,26 @@ def get_stats_queryset_bysDate_eDate(action, hospital_id = None,  sDate = None, 
     ret = ret.values("revenue", "created_at").order_by("-created_at")
     return ret
 
+def get_range_taxrefunds_revenue(hospital_id, sDate, eDate, refund_category):
+    ret = Refund.objects
+    ret = ret.annotate(revenue = ExpressionWrapper(F("amount" + "__" + refund_category ), output_field=DecimalField()))
+    if hospital_id:
+        ret = ret.filter(director__municipal__hospital = hospital_id)
+    if sDate:
+        ret = ret.filter(created_at__date__gte = sDate)
+    if eDate:
+        ret = ret.filter(created_at__date__lt = eDate)
+    
+      
+    ret = ret.values("revenue", "created_at").order_by("-created_at")
+    ret = ret.aggregate(Sum('revenue'))
+    return ret["revenue__sum"] or 0
+
 def get_range_date_revenue(hospital_id, sDate, eDate, include_hospital = False, include_pharmacy = False):
     if not include_hospital and not include_pharmacy:
         raise serializers.ValidationError("include_hospital or include_pharmacy must be true")
     
+
     refunds = get_stats_queryset_bysDate_eDate("refunds", hospital_id, sDate, eDate)
     if include_hospital:
         operations = get_stats_queryset_bysDate_eDate("operation", hospital_id, sDate, eDate)
@@ -136,7 +153,7 @@ def get_range_revenue( hospital_id, year , month, ):
     medicaments = get_stats_queryset_bymonthyear("medicament", hospital_id, year, month,)
     tickets = get_stats_queryset_bymonthyear("ticket", hospital_id, year, month,)
     refunds = get_stats_queryset_bymonthyear("refunds", hospital_id, year, month,)
-    alimentations = get_stats_queryset_bymonthyear("alimentations", hospital_id, year, month,)
+    # alimentations = get_stats_queryset_bymonthyear("alimentations", hospital_id, year, month,)
     # subs = get_stats_queryset("subs", hospital_id, year, month,)
 
     month_revenue = operations.aggregate(Sum('revenue'))["revenue__sum"] or 0
@@ -144,7 +161,7 @@ def get_range_revenue( hospital_id, year , month, ):
     month_revenue += medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     month_revenue += tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
     month_revenue += refunds.aggregate(Sum('revenue'))['revenue__sum'] or 0
-    month_revenue += alimentations.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    # month_revenue += alimentations.aggregate(Sum('revenue'))['revenue__sum'] or 0
     # month_revenue += subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
     return month_revenue
     
@@ -213,8 +230,7 @@ def get_response(hospital_id):
     today_revenue += today_medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     today_revenue += today_tickets.aggregate(Sum('revenue'))['revenue__sum'] or 0
     today_revenue += today_refunds.aggregate(Sum('revenue'))['revenue__sum'] or 0
-    today_revenue += today_alimentations.aggregate(Sum('revenue'))['revenue__sum'] or 0
-    # today_revenue += today_subs.aggregate(Sum('revenue'))['revenue__sum'] or 0
+    # today_revenue += today_alimentations.aggregate(Sum('revenue'))['revenue__sum'] or 0
 
     month_revenue = get_range_revenue(hospital_id, today.year, today.month)
     year_revenue = get_range_revenue(hospital_id, today.year,None)

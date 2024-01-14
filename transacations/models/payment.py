@@ -7,6 +7,7 @@ class Payment(models.Model):
     amount = models.FloatField()
     payed_for = models.DateField()
     for_pharmacy = models.BooleanField()
+    refund_category = models.CharField(max_length=255, null=True, blank=True)
     account = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     quittance_number = models.CharField(max_length=255)

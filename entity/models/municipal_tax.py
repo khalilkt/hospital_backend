@@ -6,6 +6,7 @@ from maur_hopitaux import settings
 
 class MunicipalTaxData(models.Model):
     hospital = models.OneToOneField("Hospital", on_delete=models.CASCADE, related_name="municipal_tax_data")
+    accounts = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -24,9 +25,14 @@ class DirectorSerializer(serializers.ModelSerializer):
 
     def get_total_refund(self, obj):
         refunds = obj.refund_set.all() 
-        total = 0
+        total = {
+            "category_1": 0,
+            "category_2": 0,
+            "category_3": 0,
+        }
         for refund in refunds:
-            total += sum(refund.amount.values())
+            for category, amount in refund.amount.items():
+                total[category] += amount
         
         return total
 
@@ -83,9 +89,7 @@ class RefundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Refund
         fields = "__all__"
-
-        
-
+    
     def validate_amount(self,  value): 
         if type(value) != dict:
             raise serializers.ValidationError("Amount should be a dictionary")

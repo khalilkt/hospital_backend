@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
-from entity.views.hospital_stats_view import get_range_date_revenue, get_stats_queryset_bysDate_eDate
+from entity.models.municipal_tax import MunicipalTaxData
+from entity.views.hospital_stats_view import get_range_date_revenue, get_range_taxrefunds_revenue, get_stats_queryset_bysDate_eDate
 from maur_hopitaux.pagination import MPagePagination
 from transacations.models import Payment, PaymentSerializer
 from entity.models import Hospital
@@ -90,16 +91,24 @@ class WeekPaymentSerializer(serializers.Serializer):
 
 class HopsitalNotPayedView(APIView):
     serializer_class = WeekPaymentSerializer
+   
 
     def get(self, request, hospital_id):
         for_pharmacy = self.request.query_params.get('for_pharmacy', False)
+        refund_category = self.request.query_params.get('refund_category', None)
         if for_pharmacy:
             if for_pharmacy == "True":
                 for_pharmacy = True
             else:
                 for_pharmacy = False
         hospital = get_object_or_404(Hospital, id = hospital_id)
+        if MunicipalTaxData.objects.filter(hospital = hospital_id).exists() and refund_category is None:
+            return Response(status = status.HTTP_400_BAD_REQUEST, data = {
+                "error" : "refund_category is required for municipal tax hospital"
+            })
         payments = Payment.objects.filter(hospital = hospital_id, for_pharmacy = for_pharmacy)
+        if refund_category: 
+            payments = payments.filter(refund_category = refund_category)
         date = hospital.created_at.date()
         # every tuesday
         while date.weekday() != 1:
@@ -109,14 +118,17 @@ class HopsitalNotPayedView(APIView):
         ret = []
         if date == hospital.created_at.date():
             date = date + datetime.timedelta(days = 7)
-        while date <= datetime.datetime.now().date():
+        while date <= (datetime.datetime.now().date()):
             start_date = date - datetime.timedelta(days = 7)
             if start_date <= hospital.created_at.date():
                 start_date = hospital.created_at.date()
             week_payments = payments.filter(payed_for = date)
             # end date is exluded
             if not week_payments.exists():
-                revenue = get_range_date_revenue(hospital_id, start_date, date, include_hospital=  not for_pharmacy , include_pharmacy= for_pharmacy)
+                if refund_category : 
+                    revenue = get_range_taxrefunds_revenue(hospital_id, start_date, date, refund_category = refund_category)
+                else:
+                    revenue = get_range_date_revenue(hospital_id, start_date, date, include_hospital=  not for_pharmacy , include_pharmacy= for_pharmacy)
                 ret.append({
                     "date" : date,
                     "start" : start_date,
