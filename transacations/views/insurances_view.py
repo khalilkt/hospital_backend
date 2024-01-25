@@ -20,7 +20,7 @@ class InssuranceSerializer(serializers.Serializer):
     iid  = serializers.CharField() 
     normal_price = serializers.IntegerField()
 
-def def_query(hospital_id, insurances : str, year = None , month = None):
+def def_insurance_query(hospital_id, insurances : str, year = None , month = None):
 
     insurances = insurances.upper().replace(" ", "").replace("[", "").replace("]" , "").split(",")
     operation_Q = OperationAction.objects.filter(insurance_number__isnull=False, insurance_name__in = insurances,   operation__hospital= hospital_id)
@@ -76,7 +76,7 @@ class InsuranceViews(ListAPIView):
         year = self.request.query_params.get('year', None)
         insurances = self.request.query_params.get('insurances', "")
 
-        ret = def_query(hospital_id, insurances, year, month)
+        ret = def_insurance_query(hospital_id, insurances, year, month)
 
        
         return ret 
@@ -92,5 +92,5 @@ class InsuranceViews(ListAPIView):
     def get_paginated_response(self, data):
         query = self.get_queryset()
         ret = super().get_paginated_response(data)
-        ret.data["total"] = query.aggregate(total_revenue =ExpressionWrapper( Sum(ExpressionWrapper( F("normal_price")- F("revenue"), output_field=FloatField())) , output_field=FloatField(), ))["total_revenue"]
+        ret.data["total"] = query.aggregate(total_revenue =ExpressionWrapper(Sum(ExpressionWrapper( F("normal_price")- F("revenue"), output_field=FloatField())) , output_field=FloatField(), ))["total_revenue"]
         return ret

@@ -12,7 +12,6 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     quittance_number = models.CharField(max_length=255)
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='payments')
-
 class PaymentSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='created_by.name', read_only=True)
     hospital_name = serializers.CharField(source='hospital.name', read_only=True)
@@ -22,15 +21,23 @@ class PaymentSerializer(serializers.ModelSerializer):
         if value.weekday() != 1:
             raise serializers.ValidationError("Payment date should be a tuesday")
         return value    
-    
-    
-
     class Meta:
         model = Payment
         fields = "__all__"
-        extra_kwargs = {
-            # 
-            'created_by': {'required': True},
-        }
+    
+class InsurancePayment(models.Model):
+    amount = models.FloatField()
+    account = models.CharField(max_length=255)
+    quittance_number = models.CharField(max_length=255)
+    hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='insurance_payments')
+    for_cnam = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    
+class InsurancePaymentSerializer(serializers.ModelSerializer):
+    hospital_name = serializers.CharField(source='hospital.name', read_only=True)
+    class Meta:
+        model = InsurancePayment
+        fields = "__all__"
 
     

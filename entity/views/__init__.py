@@ -5,7 +5,8 @@ from .hospital_operations_view import HospitalOperationsDetailView, HospitalOper
 from .hospital_analyses_views import HospitalAnalysesView, HospitalAnalysesDetailView
 from .hospital_municipal_views import *
 
+
 from .hospital_stats_view import HospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView , AdminHospitalRenenueStatusView
 from .hospital_tickets_view import HospitalTicketView, HospitalTicketsDetailView
-from .hospital_payments_view import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet,HopsitalNotPayedView
+from .hospital_payments_view import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet,HopsitalNotPayedView, HopsitalInsurancePaymentsView , HospitalInsurancePaymentsDetailView
 from .subs import ClientsView, SubscriptionActionView

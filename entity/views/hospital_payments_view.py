@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from entity.models.municipal_tax import MunicipalTaxData
 from entity.views.hospital_stats_view import get_range_date_revenue, get_range_taxrefunds_revenue, get_stats_queryset_bysDate_eDate
 from maur_hopitaux.pagination import MPagePagination
-from transacations.models import Payment, PaymentSerializer
+from transacations.models import Payment, PaymentSerializer, InsurancePayment, InsurancePaymentSerializer
 from entity.models import Hospital
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,6 +14,10 @@ from entity.models.hospital import IsHospitalDetailsAssignedUser
 from rest_framework import viewsets, serializers
 import datetime
 from django.db.models import F, Value, CharField, IntegerField, Q, Sum, Count, When , Case, BooleanField, ExpressionWrapper, DateField, DateTimeField, DurationField
+from django.db.models.functions import Concat, Coalesce, Cast, TruncDate
+from django.db.models import OuterRef, Subquery
+from django.db.models import FloatField
+from transacations.views.insurances_view import def_insurance_query
 
 
 
@@ -33,6 +37,7 @@ def get_payment_queryset(hospital_id, for_pharmacy):
     )
     ret = ret.order_by('-payed_for')
     return ret
+
 class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
@@ -47,8 +52,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     ordering = ['id']
     search_fields = ['name']
-    
-
 
 class HospitalPaymentsView(ListCreateAPIView):
     serializer_class = PaymentSerializer
@@ -70,6 +73,8 @@ class HospitalPaymentsView(ListCreateAPIView):
         for_pharmacy = self.request.query_params.get('for_pharmacy', False)
 
         return get_payment_queryset(hospital_id, for_pharmacy)
+  
+
 
 class HospitalPaymentsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = PaymentSerializer
@@ -82,7 +87,52 @@ class HospitalPaymentsDetailView(RetrieveUpdateDestroyAPIView):
             return get_object_or_404(Payment, hospital = hospital_id, id = id)  
         except Payment.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)
+        
+  
+class HopsitalInsurancePaymentsView(ListCreateAPIView):
+    serializer_class = InsurancePaymentSerializer 
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter] 
+    permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
+    ordering = ['-created_at']
+    search_fields = ['hospital__name', "account", "quittance_number","amount" ]
 
+    def paginate_queryset(self, queryset):
+            params = self.request.query_params 
+            all = params.get("all", None)
+            if all == "true":
+                super().pagination_class.page_size = 1000
+            else:
+                super().pagination_class.page_size = 10
+            return super().paginate_queryset(queryset)
+    
+    def get_paginated_response(self, data):
+        ret = super().get_paginated_response(data)
+        q = self.get_queryset()
+        ret.data["total"] = q.aggregate(total = Sum("amount"))["total"] or 0
+        for_cnam = self.request.query_params.get('for_cnam', None)
+        insurances = "[CNAM, TAAZOUR]" if for_cnam == "True" else "[HILAL]"
+        total_refunded_by_insurance = def_insurance_query(hospital_id= self.kwargs['hospital_id'], insurances=insurances).aggregate(total_revenue =ExpressionWrapper(Sum(ExpressionWrapper( F("normal_price")- F("revenue"), output_field=FloatField())) , output_field=FloatField(), ))["total_revenue"] or 0
+        ret.data["rest"] =  total_refunded_by_insurance - ret.data["total"]
+        return ret
+
+    def get_queryset(self):
+        hospital_id = self.kwargs['hospital_id']
+        for_cnam = self.request.query_params.get('for_cnam', None)
+        if not for_cnam:
+            raise serializers.ValidationError("for_cnam is required")
+        return InsurancePayment.objects.filter(hospital = hospital_id, for_cnam = for_cnam)
+    
+class HospitalInsurancePaymentsDetailView(RetrieveUpdateDestroyAPIView):
+    serializer_class = InsurancePaymentSerializer
+    permission_classes = [IsAuthenticated, IsHospitalDetailsAssignedUser, ]
+
+    def get_object(self):
+        hospital_id = self.kwargs['hospital_id']
+        id = self.kwargs['pk']
+        try:
+            return get_object_or_404(InsurancePayment, hospital = hospital_id, id = id)  
+        except InsurancePayment.DoesNotExist:
+            return Response(status = status.HTTP_404_NOT_FOUND)
 class WeekPaymentSerializer(serializers.Serializer):
     date = serializers.DateField()
     start = serializers.DateField()

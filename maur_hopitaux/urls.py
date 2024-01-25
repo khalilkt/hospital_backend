@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from entity.views import HospitalViewSet, HospitalInventoryView, HospitalInventoryDetailView, HospitalSalesView, HospitalSalesDetailView, HospitalOperationsDetailView, HospitalOperationsView, HospitalAnalysesView, HospitalAnalysesDetailView, HospitalInventoryBulkAddView , HospitalInventoryAllView, HospitalInventoryAlertView, HospitalTicketView, HospitalTicketsDetailView
-from entity.views import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet, HopsitalNotPayedView , HospitalDirectorsDetailView , HospitalDirectorsView, MunicipalRefundDetailView, MunicipalRefundView, MunicipalAlimentationsDetailView, MunicipalAlimentationsView
+from entity.views import HospitalPaymentsView, HospitalPaymentsDetailView, PaymentViewSet, HopsitalNotPayedView , HospitalDirectorsDetailView , HospitalDirectorsView, MunicipalRefundDetailView, MunicipalRefundView, MunicipalAlimentationsDetailView, MunicipalAlimentationsView, HospitalInsurancePaymentsDetailView, HopsitalInsurancePaymentsView
 from transacations.views import HospitalTicketsActionsView, HospitalTicketActionsDetailView, HospitalAnalysesActionsView, HospitalAnalysesActionsDetailView, HospitalOperationActionsView, HospitalOperationActionsDetailView, HospitalSubscribersView
 from auth_app.views import LoginTokenView, LoginView , RegisterView
 from entity.views.hospital_stats_view import HospitalStatsView, AdminHospitalStatsView, HospitalSalesStatsDetailView, AdminSalesStatsDetailView, AdminHospitalRenenueStatusView
@@ -67,6 +67,9 @@ urlpatterns = [
 
     path('hospital/<int:hospital_id>/payments', HospitalPaymentsView.as_view(), name='hospital_payments'),
     path('hospital/<int:hospital_id>/payments/<int:pk>', HospitalPaymentsDetailView.as_view(), name='hospital_payments_detail'),
+
+    path('hospital/<int:hospital_id>/insurance_payments', HopsitalInsurancePaymentsView.as_view(), name='hospital_insurance_payments'),
+    path('hospital/<int:hospital_id>/insurance_payments/<int:pk>', HospitalInsurancePaymentsDetailView.as_view(), name='hospital_insurance_payments_detail'),
 
     path('hospital/<int:hospital_id>/ticket_actions', HospitalTicketsActionsView.as_view(), name='hospital_tickets_actions'),
     path('hospital/<int:hospital_id>/ticket_actions/<int:pk>', HospitalTicketActionsDetailView.as_view(), name='hospital_tickets_actions_detail'),

@@ -84,7 +84,6 @@ class MunicipalRefundView(ListCreateAPIView):
             total_category_1 = Sum("amount__category_1", output_field=models.IntegerField()),
             total_category_2 = Sum("amount__category_2", output_field=models.IntegerField()),
             total_category_3 = Sum("amount__category_3", output_field=models.IntegerField())
-            
             )
         ret.data["total"]= total
         return ret
