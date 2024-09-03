@@ -51,7 +51,6 @@ def get_queryset(action : str, hospital_id = None,):
 
     if action== "operation" : 
         ret = OperationAction.objects
-       
         ret = ret.annotate(revenue = F("payed_price"))
        
         if hospital_id: 
@@ -60,7 +59,7 @@ def get_queryset(action : str, hospital_id = None,):
         ret = AnalyseAction.objects
         ret  = ret.annotate(revenue = Sum(
             F("analyse_action_items__payed_price")
-        ) )
+        ))
         if hospital_id:
             ret = ret.filter(hospital = hospital_id)
     elif action == "medicament":
