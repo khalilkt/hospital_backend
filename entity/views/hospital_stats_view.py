@@ -17,6 +17,8 @@ from django.db.models.functions import Concat, Coalesce
 from entity.models import Refund, Alimentation
 from django.db.models import ExpressionWrapper, FloatField, DecimalField
 
+from transacations.models.payment import Payment
+
 
 class StatsSerializer(serializers.Serializer):
     today_operations_count = serializers.IntegerField() 
@@ -29,6 +31,8 @@ class StatsSerializer(serializers.Serializer):
     month_revenue = serializers.FloatField()    
     year_revenue = serializers.FloatField()
     months_revenue = serializers.DictField()
+    all_revenue = serializers.FloatField()
+    all_payments = serializers.FloatField()
 
 class detailStatsSerializer(serializers.Serializer): 
     operations_count = serializers.IntegerField() 
@@ -72,7 +76,7 @@ def get_queryset(action : str, hospital_id = None,):
         ret = ret.annotate(revenue = F("payed_price"))
         if hospital_id:
             ret = ret.filter(ticket__hospital = hospital_id)
-    elif action == "refunds" : 
+    elif action == "refunds" :
         ret = Refund.objects
         ret = ret.annotate(revenue = ExpressionWrapper(F("amount__category_1") + F("amount__category_2") + F("amount__category_3")  , output_field=DecimalField()))
         if hospital_id:
@@ -82,7 +86,8 @@ def get_queryset(action : str, hospital_id = None,):
         ret = ret.annotate(revenue = F("amount"))
         if hospital_id:
             ret = ret.filter(director__municipal__hospital = hospital_id)
-    
+
+
     else:
         raise serializers.ValidationError("Action not found : " + str(action) )  
     return ret
@@ -109,6 +114,7 @@ def get_stats_queryset_bysDate_eDate(action, hospital_id = None,  sDate = None, 
     ret = ret.values("revenue", "created_at").order_by("-created_at")
     return ret
 
+#NOT USED
 def get_range_taxrefunds_revenue(hospital_id, sDate, eDate, refund_category):
     ret = Refund.objects
     ret = ret.annotate(revenue = ExpressionWrapper(F("amount" + "__" + refund_category ), output_field=DecimalField()))
@@ -146,7 +152,7 @@ def get_range_date_revenue(hospital_id, sDate, eDate, include_hospital = False, 
         range_revenue += medicaments.aggregate(Sum('revenue'))['revenue__sum'] or 0
     return range_revenue
 
-def get_range_revenue( hospital_id, year , month, ):
+def get_range_revenue( hospital_id, year = None, month  = None ):
     operations = get_stats_queryset_bymonthyear("operation", hospital_id, year, month,)
     analyses = get_stats_queryset_bymonthyear("analyse", hospital_id, year, month,)
     medicaments = get_stats_queryset_bymonthyear("medicament", hospital_id, year, month,)
@@ -213,6 +219,14 @@ def get_sales_detail(hospital_id, year, month, day = None):
         "total_revenue" : total_revenue,
     } 
 
+def get_all_payments(hospital_id):
+    if hospital_id:
+        all_payments = Payment.objects.filter(hospital = hospital_id)
+    else:
+        all_payments = Payment.objects.all()
+    all_payments = all_payments.aggregate(Sum('amount'))['amount__sum'] or 0
+    return all_payments
+
 def get_response(hospital_id): 
     today = datetime.datetime.now().date()
     # today = today - datetime.timedelta(days=2)
@@ -231,6 +245,9 @@ def get_response(hospital_id):
     today_revenue += today_refunds.aggregate(Sum('revenue'))['revenue__sum'] or 0
     # today_revenue += today_alimentations.aggregate(Sum('revenue'))['revenue__sum'] or 0
 
+    all_revenue = get_range_revenue(hospital_id, None, None)
+    all_payments = get_all_payments(hospital_id)
+    
     month_revenue = get_range_revenue(hospital_id, today.year, today.month)
     year_revenue = get_range_revenue(hospital_id, today.year,None)
         
@@ -249,7 +266,10 @@ def get_response(hospital_id):
         "today_revenue": today_revenue,
         "month_revenue": month_revenue,
         "year_revenue": year_revenue,
-        "months_revenue": months_revenue
+        "months_revenue": months_revenue,
+
+        "all_revenue": all_revenue,
+        "all_payments": all_payments
 
     }).data)
     

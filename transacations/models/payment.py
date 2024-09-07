@@ -12,6 +12,8 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     quittance_number = models.CharField(max_length=255)
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='payments')
+
+
 class PaymentSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='created_by.name', read_only=True)
     hospital_name = serializers.CharField(source='hospital.name', read_only=True)
