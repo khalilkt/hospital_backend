@@ -139,6 +139,10 @@ class WeekPaymentSerializer(serializers.Serializer):
     end = serializers.DateField()
     revenue = serializers.IntegerField()
 
+
+# 2 date variables : hospital_date, today
+# if hospital_date is tuesday, show tuesday alone, and then the other  
+
 class HopsitalNotPayedView(APIView):
     serializer_class = WeekPaymentSerializer
 

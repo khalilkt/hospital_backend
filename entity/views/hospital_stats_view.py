@@ -219,15 +219,17 @@ def get_sales_detail(hospital_id, year, month, day = None):
         "total_revenue" : total_revenue,
     } 
 
-def get_all_payments(hospital_id):
+def get_all_payments(hospital_id, year = None):
     if hospital_id:
         all_payments = Payment.objects.filter(hospital = hospital_id)
     else:
         all_payments = Payment.objects.all()
+    if year:
+        all_payments = all_payments.filter(created_at__year=year)
     all_payments = all_payments.aggregate(Sum('amount'))['amount__sum'] or 0
     return all_payments
 
-def get_response(hospital_id): 
+def get_response(hospital_id, selected_year): 
     today = datetime.datetime.now().date()
     # today = today - datetime.timedelta(days=2)
     today_operations = get_stats_queryset_bymonthyear("operation", hospital_id, today.year, today.month, today.day)
@@ -236,7 +238,6 @@ def get_response(hospital_id):
     today_tickets = get_stats_queryset_bymonthyear("ticket", hospital_id, today.year, today.month, today.day)
     today_refunds = get_stats_queryset_bymonthyear("refunds", hospital_id, today.year, today.month, today.day)
     today_alimentations = get_stats_queryset_bymonthyear("alimentations", hospital_id, today.year, today.month, today.day)
-    # today_subs = get_stats_queryset("subs", hospital_id, today.year, today.month, today.day)
 
     today_revenue = today_operations.aggregate(Sum('revenue'))['revenue__sum'] or 0 
     today_revenue += today_analyses.aggregate(Sum('revenue'))['revenue__sum'] or 0
@@ -245,12 +246,12 @@ def get_response(hospital_id):
     today_revenue += today_refunds.aggregate(Sum('revenue'))['revenue__sum'] or 0
     # today_revenue += today_alimentations.aggregate(Sum('revenue'))['revenue__sum'] or 0
 
-    all_revenue = get_range_revenue(hospital_id, None, None)
-    all_payments = get_all_payments(hospital_id)
+    all_revenue = get_range_revenue(hospital_id, selected_year, None)
+    all_payments = get_all_payments(hospital_id, selected_year)
     
     month_revenue = get_range_revenue(hospital_id, today.year, today.month)
     year_revenue = get_range_revenue(hospital_id, today.year,None)
-        
+
     months_revenue = {}
     for i in range(1, 13):
         months_revenue[i] = get_range_revenue(hospital_id, today.year, i)
@@ -275,11 +276,15 @@ def get_response(hospital_id):
     
 class HospitalStatsView(APIView):
     def get(self, request, hospital_id):
-        return get_response(hospital_id)
+        params = request.query_params
+        year = params.get("year", None)
+        return get_response(hospital_id, year)
     
 class AdminHospitalStatsView(APIView):
      def get(self, request):
-        return get_response(None)
+        params = request.query_params
+        year = params.get("year", None)
+        return get_response(None, year)
      
 
     
