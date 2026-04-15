@@ -26,7 +26,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = "__all__"
-    
+
 class InsurancePayment(models.Model):
     amount = models.FloatField()
     account = models.CharField(max_length=255)
@@ -41,5 +41,3 @@ class InsurancePaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = InsurancePayment
         fields = "__all__"
-
-    
