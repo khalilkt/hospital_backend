@@ -38,7 +38,11 @@ def def_insurance_query(hospital_id, insurances : str, year = None , month = Non
         medicament_Q = medicament_Q.filter(created_at__month = month)
         ticket_Q = ticket_Q.filter(created_at__month = month)
     
-    ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("payed_price"), normal_price = Coalesce(F("operation__insurance_price"), F("operation__price"))).union(
+    ret = operation_Q.annotate(name = F('operation__name'), iid = Concat(Value("op_"), F("id"), output_field=CharField()), revenue=F("payed_price"), normal_price = Case(
+        When(insurance_name__iexact='cnass', then=F("operation__cnass_total_price")),
+        default=Coalesce(F("operation__insurance_price"), F("operation__price")),
+        output_field=FloatField()
+    )).union(
      ).union(
         analyse_Q.annotate(name = Value("analyse"), iid = Concat(Value("an_"), F("id"), output_field=CharField()), revenue=   Coalesce(Sum(
             F("analyse_action_items__payed_price")
@@ -50,7 +54,11 @@ def def_insurance_query(hospital_id, insurances : str, year = None , month = Non
     
     )
     ).union(
-        ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("payed_price") , normal_price = Coalesce(F("ticket__insurance_price"),F("ticket__price")) * Coalesce( F("duration"), Value(1)))
+        ticket_Q.annotate(name = F("ticket__name"), iid = Concat(Value("tk_"), F("id"), output_field=CharField()), revenue  = F("payed_price") , normal_price = Case(
+            When(insurance_name__iexact='cnass', then=F("ticket__cnass_total_price")),
+            default=Coalesce(F("ticket__insurance_price"), F("ticket__price")),
+            output_field=FloatField()
+        ) * Coalesce( F("duration"), Value(1)))
     ).values('name', 'created_at', 'insurance_number', "insurance_name","iid","revenue" , "normal_price").order_by('-created_at')
     return ret
 

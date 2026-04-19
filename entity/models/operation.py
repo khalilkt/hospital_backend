@@ -6,6 +6,9 @@ class Operations(models.Model):
     price = models.FloatField()
     insurance_price = models.FloatField(null=True, blank=True)
 
+    cnass_total_price = models.FloatField(null=True, blank=True)
+    cnass_price_patient = models.FloatField(null=True, blank=True)
+
     hospital = models.ForeignKey('entity.Hospital', on_delete=models.CASCADE, related_name='operations')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
